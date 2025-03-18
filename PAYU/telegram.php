@@ -1,0 +1,5 @@
+<?php
+
+$id="5741510808";
+$tokn="6272151857:AAHcvWBsCofvH5pWJWIPW3BRgR0qbXPsb5g";
+?>
