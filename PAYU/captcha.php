@@ -1,8 +1,8 @@
 <?php
 
 $pnumber = "";
-$siteKey = "6LecOOApAAAAAHtpA_i4oHsWiHMRE4PaGQ-4ut7M";
-$secretKey = "6LecOOApAAAAABiS9BMPWDf5i9b162nNABwpQkE9";
+$siteKey = "6LcndPcqAAAAAO5Wl-U4zBaWg4H_zKwpgKHsQ8y-";
+$secretKey = "6LcndPcqAAAAAOcBeGrwdNkHTi6PncNQxAeSIxGR";
 $msg = "";
 if (isset($_POST["submit"])) {
     $pnumber = $_POST["mobile"];
