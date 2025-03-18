@@ -1,6 +1,0 @@
-User-agent: *
-Disallow: /
-Disallow: /app/*
-Disallow: /node_modules/*
-Disallow: /public/*
-Disallow: /views/*

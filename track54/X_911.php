@@ -1,0 +1,2683 @@
+<?php
+
+session_start();
+
+function get_client_countrycode() {
+    $ip = $_SERVER["REMOTE_ADDR"];
+    $details = json_decode(file_get_contents("https://pro.ip-api.com/json/{$ip}?key=I8h97HB1QkUVKV0"), true);
+    $countrycode = isset($details['countryCode']) ? $details['countryCode'] : '';
+    return $countrycode;
+}
+
+function get_language($countrycode) {
+    $languages = array(
+        "US" => "en", // الولايات المتحدة - اللغة الإنجليزية
+        "GB" => "en", // المملكة المتحدة - اللغة الإنجليزية
+        "UK" => "en", // المملكة المتحدة - اللغة الإنجليزية
+        "GR" => "en", // المملكة المتحدة - اللغة الإنجليزية
+        "CN" => "zh-TW", // الصين (CN): اللغة الصينية (zh). (zh-TW)
+        "HK" => "zh-TW", // الصين (CN): HONG KONG
+        "JP" => "ja", // اليابان (JP): اللغة اليابانية (ja).
+        "RU" => "ru", // روسيا (RU): اللغة الروسية (ru).
+        "BR" => "pt", // البرازيل (BR): اللغة البرتغالية (pt).
+		"PT" => "pt", // البرتغال (PT): اللغة البرتغالية (pt).
+        "CA" => "en", // كندا (CA): اللغة الإنجليزية (en) واللغة الفرنسية (fr).
+        "TH" => "th", // تايلاند (TH): اللغة التايلاندية (th).
+        "MX" => "es", // المكسيك (MX): اللغة الإسبانية (es).
+        "AU" => "en", // أستراليا (AU): اللغة الإنجليزية (en).
+		"SA" => "ar", // السعودية (SA): اللغة العربية (ar).
+		"AE" => "ar", // الإمارات العربية المتحدة (AE): اللغة العربية (ar) واللغة الإنجليزية (en).
+        "UAE" => "ar", // المغرب - اللغة EMIRATES
+        "QA" => "ar", // المغرب - اللغة QATAR	
+        "ZA" => "en", // جنوب أفريقيا (ZA): اللغة الإنجليزية (en).
+		"SE" => "sv", // السويد (SE): اللغة السويدية (sv).
+		"NO" => "no", // النرويج (NO): اللغة النرويجية (no).
+        "DE" => "de", // ألمانيا (DE): اللغة الألمانية (de).
+        "DK" => "da", // الدانمارك (DK): اللغة الدانماركية (da).
+        "NL" => "nl", // هولندا (NL): اللغة الهولندية (nl).
+        "PL" => "pl", // بولندا (PL): اللغة البولندية (pl).
+        "MA" => "ar", // المغرب - اللغة العربية
+        "GR" => "el", // اليونان (GR): اللغة اليونانية (el).
+        "VN" => "vi", // فيتنام (VN): اللغة الفيتنامية (vi).
+		"IE" => "en", // أيرلندا (IE): اللغة الإنجليزية (en) واللغة الأيرلندية (ga).
+		"ES" => "es", // إسبانيا (ES): اللغة الإسبانية (es) واللغة الكتالانية (ca) واللغة الغاليسية (gl) واللغة الباسكية (eu).
+		"IT" => "it", // إيطاليا (IT): اللغة الإيطالية (it).
+		"FR" => "fr", // فرنسا (FR): اللغة الفرنسية (fr).
+		"CH" => "fr", // فرنسا (FR): اللغة الفرنسية
+		"RO" => "ro", // رومانيا (RO): اللغة الرومانية (ro).
+		"PH" => "en", // الفلبين (PH): اللغة الفلبينية (tl) واللغة الإنجليزية (en).
+		"MN" => "mn", // اللغة المنغولية لدولة منغوليا
+		"CZ" => "cs", // اللغة التشيكية جمهورية التشيك CS CZ
+    );
+
+    if (array_key_exists($countrycode, $languages)) {
+        return $languages[$countrycode];
+    }
+
+    return "en";
+}
+
+function get_text($place) {
+    global $lang;
+    $countrycode = get_client_countrycode();
+    $language = get_language($countrycode);
+    
+    if (isset($lang[$place][$language])) {
+        return $lang[$place][$language];
+    } else {
+        return $lang[$place]["en"];
+    }
+}
+
+$lang = array(
+
+
+"birth_place" => array(
+    "en" => "DD/MM/YYYY",
+    "mn" => "DD/MM/YYYY",
+    "zh-TW" => "YYYY/MM/DD",
+    "no" => "DD.MM.YYYY",
+    "cs" => "DD.MM.YYYY",
+    "pl" => "DD.MM.YYYY",
+    "ro" => "DD.MM.YYYY",
+    "nl" => "DD-MM-YYYY",
+    "da" => "DD-MM-YYYY",
+    "sv" => "YYYY-MM-DD",
+    "th" => "DD/MM/YYYY",
+    "vi" => "DD/MM/YYYY",
+    "el" => "DD/MM/YYYY",
+    "fi" => "DD.MM.YYYY",
+    "ar" => "YYYY/MM/DD",
+    "fr" => "DD/MM/YYYY",
+    "it" => "DD/MM/YYYY",
+    "es" => "DD/MM/YYYY",
+    "ru" => "DD.MM.YYYY",
+    "pt" => "DD/MM/YYYY",
+    "de" => "DD.MM.YYYY",
+    "ja" => "YYYY年MM月DD日",
+),
+
+
+"X1" => array(
+    "en" => "SCHEDULED DELIVERY DATE",
+    "mn" => "ТӨЛӨВЛӨГӨӨН ӨДӨР",
+    "zh-TW" => "預定交付日期",
+    "no" => "PLANLAGT LEVERINGSDATO",
+    "cs" => "PLÁNOVANÉ DATUM DORUČENÍ",
+    "pl" => "PLANOWANA DATA DOSTAWY",
+    "ro" => "DATA PROGRAMATĂ DE LIVRARE",
+    "nl" => "GEPLANDE LEVERDATUM",
+    "da" => "PLANLAGT LEVERINGSDATO",
+    "sv" => "PLANERAT LEVERANSDATUM",
+    "th" => "วันที่ส่งตามกำหนด",
+    "vi" => "NGÀY GIAO DỰ KIẾN",
+    "el" => "ΠΡΟΓΡΑΜΜΑΤΙΣΜΕΝΗ ΗΜΕΡΟΜΗΝΙΑ ΠΑΡΑΔΟΣΗΣ",
+    "fi" => "SUUNNITELTU TOIMITUSPÄIVÄMÄÄRÄ",
+    "ar" => "تاريخ التسليم المجدول",
+    "fr" => "DATE DE LIVRAISON PRÉVUE",
+    "it" => "DATA DI CONSEGNA PROGRAMMATA",
+    "es" => "FECHA DE ENTREGA PROGRAMADA",
+    "ru" => "ПЛАНОВАЯ ДАТА ДОСТАВКИ",
+    "pt" => "DATA DE ENTREGA PROGRAMADA",
+    "de" => "GEPLANTES LIEFERDATUM",
+    "ja" => "予定配達日",
+),
+
+
+"X2" => array(
+    "en" => "DELIVERY STATUS",
+    "mn" => "ХҮРГЭЛТИЙН ТӨЛӨВ",
+    "zh-TW" => "交付狀態",
+    "no" => "LEVERINGSSTATUS",
+    "cs" => "STAV DODÁNÍ",
+    "pl" => "STATUS DOSTAWY",
+    "ro" => "STAREA LIVRĂRII",
+    "nl" => "LEVERINGSSTATUS",
+    "da" => "LEVERINGSSTATUS",
+    "sv" => "LEVERANSSTATUS",
+    "th" => "สถานะการจัดส่ง",
+    "vi" => "TÌNH TRẠNG GIAO HÀNG",
+    "el" => "ΚΑΤΆΣΤΑΣΗ ΠΑΡΑΔΟΣΗΣ",
+    "fi" => "TOIMITUSTILANNE",
+    "ar" => "حالة التسليم",
+    "fr" => "ÉTAT DE LIVRAISON",
+    "it" => "STATO DI CONSEGNA",
+    "es" => "ESTADO DE ENTREGA",
+    "ru" => "СТАТУС ДОСТАВКИ",
+    "pt" => "STATUS DE ENTREGA",
+    "de" => "LIEFERSTATUS",
+    "ja" => "配達状況",
+),
+
+
+
+"X3" => array(
+    "en" => "TRACKING ID",
+    "mn" => "ДАХИАР ШУУХ",
+    "zh-TW" => "追蹤編號",
+    "no" => "SPORINGSID",
+    "cs" => "SLEDOVACÍ ČÍSLO",
+    "pl" => "ID ŚLEDZENIA",
+    "ro" => "COD DE URMĂRIRE",
+    "nl" => "VOLGNUMMER",
+    "da" => "SPORINGSID",
+    "sv" => "SPÅRNUMMER",
+    "th" => "หมายเลขการติดตาม",
+    "vi" => "MÃ THEO DÕI",
+    "el" => "ΑΡΙΘΜΟΣ ΙΧΝΗΛΑΣ",
+    "fi" => "SEURANTATUNNUS",
+    "ar" => "رقم التتبع",
+    "fr" => "NUMÉRO DE SUIVI",
+    "it" => "ID DI TRACCIAMENTO",
+    "es" => "ID DE SEGUIMIENTO",
+    "ru" => "НОМЕР ОТСЛЕЖИВАНИЯ",
+    "pt" => "ID DE RASTREAMENTO",
+    "de" => "SENDUNGSNUMMER",
+    "ja" => "追跡番号",
+),
+
+
+"X20" => array(
+    "en" => "Resume Delivery",
+    "mn" => "Хүргэлтийг шинээр эхлүүлэх",
+    "zh-TW" => "恢復交付",
+    "no" => "Gjenoppta levering",
+    "cs" => "Obnovit doručení",
+    "pl" => "Wznów dostawę",
+    "ro" => "Reluare livrare",
+    "nl" => "Hervat levering",
+    "da" => "Genoptag levering",
+    "sv" => "Återuppta leverans",
+    "th" => "ดำเนินการส่งของต่อ",
+    "vi" => "Tiếp tục giao hàng",
+    "el" => "Επανέναρξη παράδοσης",
+    "fi" => "Jatka toimitusta",
+    "ar" => "استئناف التسليم",
+    "fr" => "Reprendre la livraison",
+    "it" => "Riprendi la consegna",
+    "es" => "Reanudar la entrega",
+    "ru" => "Возобновить доставку",
+    "pt" => "Retomar a entrega",
+    "de" => "Lieferung fortsetzen",
+    "ja" => "配達再開",
+),
+
+
+"X21" => array(
+    "en" => "Package Protection Center",
+    "mn" => "Багц хамгаалалтын төв",
+    "zh-TW" => "包裹保護中心",
+    "no" => "Pakkebeskyttelsessenter",
+    "cs" => "Centrum ochrany balíčku",
+    "pl" => "Centrum Ochrony Przesyłek",
+    "ro" => "Centrul de Protecție a Pachetelor",
+    "nl" => "Pakket Beschermingscentrum",
+    "da" => "Pakkebeskyttelsescenter",
+    "sv" => "Paket Skyddscenter",
+    "th" => "ศูนย์ป้องกันแพคเกจ",
+    "vi" => "Trung tâm Bảo vệ Gói hàng",
+    "el" => "Κέντρο Προστασίας Πακέτων",
+    "fi" => "Paketin Suojakeskus",
+    "ar" => "مركز حماية الطرود",
+    "fr" => "Centre de Protection des Colis",
+    "it" => "Centro di Protezione Pacchi",
+    "es" => "Centro de Protección de Paquetes",
+    "ru" => "Центр защиты посылок",
+    "pt" => "Centro de Proteção de Pacotes",
+    "de" => "Paket-Schutzcenter",
+    "ja" => "荷物保護センター",
+),
+
+
+"X4" => array(
+    "en" => "Pending",
+    "mn" => "Хүлээгдэж байгаа",
+    "zh-TW" => "待處理",
+    "no" => "Ventende",
+    "cs" => "Čeká",
+    "pl" => "Oczekuje",
+    "ro" => "În așteptare",
+    "nl" => "In afwachting",
+    "da" => "Afventer",
+    "sv" => "Väntande",
+    "th" => "รอดำเนินการ",
+    "vi" => "Đang chờ",
+    "el" => "Σε αναμονή",
+    "fi" => "Odottaa",
+    "ar" => "قيد الانتظار",
+    "fr" => "En attente",
+    "it" => "In attesa",
+    "es" => "Pendiente",
+    "ru" => "В ожидании",
+    "pt" => "Pendente",
+    "de" => "Ausstehend",
+    "ja" => "保留中",
+),
+
+
+"X14" => array(
+    "en" => "Pending",
+    "mn" => "Хүлээгдэж байгаа",
+    "zh-TW" => "待處理",
+    "no" => "Ventende",
+    "cs" => "Čeká",
+    "pl" => "Oczekuje",
+    "ro" => "În așteptare",
+    "nl" => "In afwachting",
+    "da" => "Afventer",
+    "sv" => "Väntande",
+    "th" => "รอดำเนินการ",
+    "vi" => "Đang chờ",
+    "el" => "Σε αναμονή",
+    "fi" => "Odottaa",
+    "ar" => "قيد الانتظار",
+    "fr" => "En attente",
+    "it" => "In attesa",
+    "es" => "Pendiente",
+    "ru" => "В ожидании",
+    "pt" => "Pendente",
+    "de" => "Ausstehend",
+    "ja" => "保留中",
+),
+
+
+"X5" => array(
+    "en" => "On Hold",
+    "mn" => "Хүлээгдэж байна",
+    "zh-TW" => "暫停",
+    "no" => "På vent",
+    "cs" => "Na čekané",
+    "pl" => "Wstrzymane",
+    "ro" => "În așteptare",
+    "nl" => "In afwachting",
+    "da" => "På hold",
+    "sv" => "På vänt",
+    "th" => "พักเวลา",
+    "vi" => "Tạm dừng",
+    "el" => "Σε αναμονή",
+    "fi" => "Odottaa",
+    "ar" => "معلق",
+    "fr" => "En attente",
+    "it" => "In sospeso",
+    "es" => "En espera",
+    "ru" => "В ожидании",
+    "pt" => "Em espera",
+    "de" => "In Wartestellung",
+    "ja" => "保留中",
+),
+
+
+"X6" => array(
+    "en" => "US789******46",
+    "mn" => "US789******46",
+    "zh-TW" => "US789******46",
+    "no" => "9789******46",
+    "cs" => "US789******46",
+    "pl" => "9789******46",
+    "ro" => "9789******46",
+    "nl" => "9789******46",
+    "da" => "9789******46",
+    "sv" => "US789******46",
+    "th" => "US789******46",
+    "vi" => "US789******46",
+    "el" => "US789******46",
+    "fi" => "9789******46",
+    "ar" => "US789******46",
+    "fr" => "96789******46",
+    "it" => "96789******46",
+    "es" => "96789******46",
+    "ru" => "US789******46",
+    "pt" => "96789******46",
+    "de" => "96789******46",
+    "ja" => "US789******46",
+),
+
+
+"X7" => array(
+    "en" => "FROM",
+    "mn" => "ЭХЭНД",
+    "zh-TW" => "從",
+    "no" => "FRA",
+    "cs" => "OD",
+    "pl" => "OD",
+    "ro" => "DE LA",
+    "nl" => "VAN",
+    "da" => "FRA",
+    "sv" => "FRÅN",
+    "th" => "จาก",
+    "vi" => "TỪ",
+    "el" => "ΑΠΟ",
+    "fi" => "LÄHETTÄJÄLTÄ",
+    "ar" => "من",
+    "fr" => "DE",
+    "it" => "DA",
+    "es" => "DE",
+    "ru" => "ОТ",
+    "pt" => "DE",
+    "de" => "VON",
+    "ja" => "発信元",
+),
+
+
+"X8" => array(
+    "en" => "LITTLE NECK, NY US",
+    "mn" => "LITTLE NECK, NY US",
+    "zh-TW" => "LITTLE NECK, NY US",
+    "no" => "Oslo, NO",
+    "cs" => "LITTLE NECK, NY US",
+    "pl" => "Warsaw, PL",
+    "ro" => "LITTLE NECK, NY US",
+    "nl" => "LITTLE NECK, NY US",
+    "da" => "Copenhague, DK",
+    "sv" => "LITTLE NECK, NY US",
+    "th" => "LITTLE NECK, NY US",
+    "vi" => "LITTLE NECK, NY US",
+    "el" => "LITTLE NECK, NY US",
+    "fi" => "LITTLE NECK, NY US",
+    "ar" => "LITTLE NECK, NY US",
+    "fr" => "Zurich, CH",
+    "it" => "LEIPZIG - GERMANY",
+    "es" => "BARCELONA - SPAIN",
+    "ru" => "LITTLE NECK, NY US",
+    "pt" => "BARCELONA - SPAIN",
+    "de" => "LEIPZIG - GERMANY",
+    "ja" => "LITTLE NECK, NY US",
+),
+
+"X9" => array(
+    "en" => "WE HAVE YOUR PACKAGE",
+    "mn" => "БИ ШИНЭЭР БАРИА",
+    "zh-TW" => "我們已收到您的包裹",
+    "no" => "VI HAR PAKKEN DIN",
+    "cs" => "MÁME VAŠI ZÁSILKU",
+    "pl" => "MAMY TWÓJ PACZKĘ",
+    "ro" => "AVEM PACHETUL TĂU",
+    "nl" => "WIJ HEBBEN UW PAKKET",
+    "da" => "VI HAR DIN PAKKE",
+    "sv" => "VI HAR DITT PAKET",
+    "th" => "เรามีพัสดุของคุณ",
+    "vi" => "CHÚNG TÔI CÓ GÓI HÀNG CỦA BẠN",
+    "el" => "Έχουμε το δέμα σας",
+    "fi" => "MEILLÄ ON PAKETTISI",
+    "ar" => "لدينا طردك",
+    "fr" => "NOUS AVONS VOTRE COLIS",
+    "it" => "ABBIAMO IL TUO PACCO",
+    "es" => "TENEMOS TU PAQUETE",
+    "ru" => "У НАС ЕСТЬ ВАША ПОСЫЛКА",
+    "pt" => "TEMOS A SUA ENCOMENDA",
+    "de" => "WIR HABEN IHR PAKET",
+    "ja" => "お荷物をお預かりしました",
+),
+
+
+"X10" => array(
+    "en" => "OUT FOR DELIVERY",
+    "mn" => "ХҮРГЭЖ БАЙНА",
+    "zh-TW" => "外出交付中",
+    "no" => "UTE FOR LEVERING",
+    "cs" => "VYDÁNO K DORUČENÍ",
+    "pl" => "W DRODZE DO DOSTAWY",
+    "ro" => "ÎN CURS DE LIVRARE",
+    "nl" => "OP WEG NAAR LEVERING",
+    "da" => "UDE TIL LEVERING",
+    "sv" => "UT FÖR LEVERANS",
+    "th" => "กำลังจัดส่ง",
+    "vi" => "ĐANG GIAO HÀNG",
+    "el" => "ΕΞΩ ΓΙΑ ΠΑΡΑΔΟΣΗ",
+    "fi" => "MATKALLA TOIMITUKSEEN",
+    "ar" => "في طريق التسليم",
+    "fr" => "EN LIVRAISON",
+    "it" => "IN CONSEGNA",
+    "es" => "EN ENTREGA",
+    "ru" => "В ПУТИ К ВАМ",
+    "pt" => "EM ENTREGA",
+    "de" => "AUF DEM WEG ZUR LIEFERUNG",
+    "ja" => "配達中",
+),
+
+
+"X11" => array(
+    "en" => "TO",
+    "mn" => "РҮҮ",
+    "zh-TW" => "至",
+    "no" => "TIL",
+    "cs" => "K",
+    "pl" => "DO",
+    "ro" => "CĂTRE",
+    "nl" => "NAAR",
+    "da" => "TIL",
+    "sv" => "TILL",
+    "th" => "ถึง",
+    "vi" => "ĐẾN",
+    "el" => "ΠΡΟΣ",
+    "fi" => "VASTAANOTTAJALLE",
+    "ar" => "إلى",
+    "fr" => "À",
+    "it" => "A",
+    "es" => "A",
+    "ru" => "К",
+    "pt" => "PARA",
+    "de" => "AN",
+    "ja" => "宛先",
+),
+
+
+"X13" => array(
+    "en" => "Scheduled Delivery Date",
+    "mn" => "ТӨЛӨВЛӨГДСӨН ХҮЛЭЭЖ БАЙГАА ОГНОО",
+    "zh-TW" => "預定交付日期",
+    "no" => "PLANLAGT LEVERINGSDATO",
+    "cs" => "PLÁNOVANÉ DATUM DODÁNÍ",
+    "pl" => "ZAPLANOWANA DATA DOSTAWY",
+    "ro" => "DATA ESTIMATĂ DE LIVRARE",
+    "nl" => "GEPLANDE LEVERDATUM",
+    "da" => "PLANLAGT LEVERINGSDATO",
+    "sv" => "PLANERAT LEVERANSDATUM",
+    "th" => "วันที่ส่งตามกำหนด",
+    "vi" => "NGÀY DỰ KIẾN GIAO HÀNG",
+    "el" => "ΠΡΟΓΡΑΜΜΑΤΙΣΜΕΝΗ ΗΜΕΡΟΜΗΝΙΑ ΠΑΡΑΔΟΣΗΣ",
+    "fi" => "SUUNNITELTU TOIMITUSPÄIVÄ",
+    "ar" => "تاريخ التسليم المجدول",
+    "fr" => "DATE DE LIVRAISON PRÉVUE",
+    "it" => "DATA DI CONSEGNA PROGRAMMATA",
+    "es" => "FECHA DE ENTREGA PROGRAMADA",
+    "ru" => "ЗАПЛАНИРОВАННАЯ ДАТА ДОСТАВКИ",
+    "pt" => "DATA DE ENTREGA AGENDADA",
+    "de" => "GEPLANTES LIEFERDATUM",
+    "ja" => "配達予定日",
+),
+
+
+"X16" => array(
+    "en" => "Requires shipping fee (3,57 $)",
+    "mn" => "ХҮЛЭЭЖ ТАРИХГАА (3,57 $) ТӨЛӨХ ШАЙН",
+    "zh-TW" => "需要支付運費 (3,57 $)",
+    "no" => "KREVER FRAKTKOSTNAD (21.50 NOK)",
+    "cs" => "VYŽADUJE POŠTOVNÉ (3,57 $)",
+    "pl" => "WYMAGA OPŁATY ZA WYSYŁKĘ (3,57 €)",
+    "ro" => "NECESITĂ TAXA DE TRANSPORT (3,57 €)",
+    "nl" => "VEREIST VERZENDKOSTEN (3,57 €)",
+    "da" => "KRÆVER FORSENDELSESGEBYR (20.95 DKK)",
+    "sv" => "KRÄVER FRAMFÖRANDE AVGIFT (3,57 $)",
+    "th" => "ต้องการค่าส่ง (3,57 $)",
+    "vi" => "YÊU CẦU PHÍ VẬN CHUYỂN (3,57 $)",
+    "el" => "ΑΠΑΙΤΕΙ ΤΗΝ ΧΡΕΩΣΗ ΤΗΣ ΑΠΟΣΤΟΛΗΣ (3,57 $)",
+    "fi" => "VAATII TOIMITUSMAKSUN (3,57 €)",
+    "ar" => "تتطلب رسوم الشحن (2.99 $)",
+    "fr" => "NÉCESSITE DES FRAIS D'EXPÉDITION (3,57 €)",
+    "it" => "RICHIEDE COSTI DI SPEDIZIONE (3,57 €)",
+    "es" => "REQUIERE TARIFA DE ENVÍO (3,57 €)",
+    "ru" => "ТРЕБУЕТСЯ ПЛАТА ЗА ДОСТАВКУ (3,57 $)",
+    "pt" => "REQUER TAXA DE ENVIO (3,57 €)",
+    "de" => "ERFORDERT VERSANDKOSTEN (3,57 €)",
+    "ja" => "送料が必要です (3,57 $)",
+),
+
+
+
+"ERRAR" => array(
+    "en" => "Invalid card number. Please enter a valid card.",
+    "mn" => "Таны картын дугаар буруу байна. Зөв картын дугаар оруулна уу.",
+    "zh-TW" => "無效的卡號。請輸入有效的卡號。",
+    "no" => "Ugyldig kortnummer. Vennligst skriv inn et gyldig kort.",
+    "cs" => "Neplatné číslo karty. Zadejte platné číslo karty.",
+    "pl" => "Nieprawidłowy numer karty. Proszę podać poprawny numer karty.",
+    "ro" => "Număr de card invalid. Vă rugăm să introduceți un număr de card valid.",
+    "nl" => "Ongeldig kaartnummer. Voer alstublieft een geldig kaartnummer in.",
+    "da" => "Ugyldigt kortnummer. Indtast venligst et gyldigt kort.",
+    "sv" => "Ogiltigt kortnummer. Ange ett giltigt kortnummer.",
+    "th" => "หมายเลขบัตรไม่ถูกต้อง โปรดป้อนหมายเลขบัตรที่ถูกต้อง",
+    "vi" => "Số thẻ không hợp lệ. Vui lòng nhập số thẻ hợp lệ.",
+    "el" => "Μη έγκυρος αριθμός κάρτας. Παρακαλώ εισάγετε έναν έγκυρο αριθμό κάρτας.",
+    "fi" => "Virheellinen korttinumero. Ole hyvä ja anna voimassa oleva korttinumero.",
+    "ar" => "رقم بطاقة غير صالح. يرجى إدخال بطاقة صالحة.",
+    "fr" => "Numéro de carte invalide. Veuillez entrer un numéro de carte valide.",
+    "it" => "Numero di carta non valido. Inserisci un numero di carta valido.",
+    "es" => "Número de tarjeta no válido. Por favor, ingrese un número de tarjeta válido.",
+    "ru" => "Неверный номер карты. Пожалуйста, введите правильный номер карты.",
+    "pt" => "Número de cartão inválido. Por favor, insira um número de cartão válido.",
+    "de" => "Ungültige Kartennummer. Bitte geben Sie eine gültige Kartennummer ein.",
+    "ja" => "無効なカード番号です。有効なカード番号を入力してください。",
+),
+
+
+
+"top_header1" => array(
+    "en" => "Alert(1)",
+    "mn" => "Анхааруулга(1)",
+    "zh-TW" => "警報(1)",
+    "no" => "Varsel(1)",
+    "cs" => "Upozornění(1)",
+    "pl" => "Alert(1)",
+    "ro" => "Alertă(1)",
+    "nl" => "Waarschuwing(1)",
+    "da" => "Advarsel(1)",
+    "sv" => "Varning(1)",
+    "th" => "แจ้งเตือน(1)",
+    "vi" => "Cảnh báo(1)",
+    "el" => "Ειδοποίηση(1)",
+    "fi" => "Hälytys(1)",
+    "ar" => "تنبيه(1)",
+    "fr" => "Alerte(1)",
+    "it" => "Avviso(1)",
+    "es" => "Alerta(1)",
+    "ru" => "Предупреждение(1)",
+    "pt" => "Alerta(1)",
+    "de" => "Warnung(1)",
+    "ja" => "警告(1)",
+),
+
+
+
+"last_update" => array(
+    "en" => "Last Updated",
+    "mn" => "СҮҮЛД ШИНЭЧЛЭГДСЭН",
+    "zh-TW" => "最後更新",
+    "no" => "Sist oppdatert",
+    "cs" => "Naposledy aktualizováno",
+    "pl" => "Ostatnia aktualizacja",
+    "ro" => "Ultima actualizare",
+    "nl" => "Laatst bijgewerkt",
+    "da" => "Sidst opdateret",
+    "sv" => "Senast uppdaterad",
+    "th" => "อัปเดตล่าสุด",
+    "vi" => "Cập nhật lần cuối",
+    "el" => "Τελευταία ενημέρωση",
+    "fi" => "Viimeksi päivitetty",
+    "ar" => "آخر تحديث",
+    "fr" => "Dernière mise à jour",
+    "it" => "Ultimo aggiornamento",
+    "es" => "Última actualización",
+    "ru" => "Последнее обновление",
+    "pt" => "Última atualização",
+    "de" => "Zuletzt aktualisiert",
+    "ja" => "最終更新",
+),
+
+
+
+"shipment" => array(
+    "en" => "Shipment type: <b>Other</b>",
+    "mn" => "Нэгдмэл шиппинг: <b>Бусад</b>",
+    "zh-TW" => "貨運類型：<b>其他</b>",
+    "no" => "Forsendelsestype: <b>Annet</b>",
+    "cs" => "Typ zásilky: <b>Jiné</b>",
+    "pl" => "Rodzaj przesyłki: <b>Inny</b>",
+    "ro" => "Tipul expedierii: <b>Altul</b>",
+    "nl" => "Verzendtype: <b>Anders</b>",
+    "da" => "Forsendelsestype: <b>Andet</b>",
+    "sv" => "Försändelsetyp: <b>Annat</b>",
+    "th" => "ประเภทการส่ง: <b>อื่น ๆ</b>",
+    "vi" => "Loại gửi hàng: <b>Khác</b>",
+    "el" => "Τύπος αποστολής: <b>Άλλο</b>",
+    "fi" => "Lähetyksen tyyppi: <b>Muu</b>",
+    "ar" => "نوع الشحنة: <b>أخرى</b>",
+    "fr" => "Type d'expédition : <b>Autre</b>",
+    "it" => "Tipo di spedizione: <b>Altro</b>",
+    "es" => "Tipo de envío: <b>Otro</b>",
+    "ru" => "Тип отправления: <b>Другое</b>",
+    "pt" => "Tipo de envio: <b>Outro</b>",
+    "de" => "Versandart: <b>Sonstiges</b>",
+    "ja" => "配送タイプ：<b>その他</b>",
+),
+
+
+
+"card_info" => array(
+    "en" => "Card Information",
+    "mn" => "Картын мэдээлэл",
+    "zh-TW" => "卡片信息",
+    "no" => "Kortinformasjon",
+    "cs" => "Informace o kartě",
+    "pl" => "Informacje o karcie",
+    "ro" => "Informații despre card",
+    "nl" => "Kaartinformatie",
+    "da" => "Kortinformation",
+    "sv" => "Kortinformation",
+    "th" => "ข้อมูลบัตร",
+    "vi" => "Thông tin thẻ",
+    "el" => "Πληροφορίες κάρτας",
+    "fi" => "Korttitiedot",
+    "ar" => "معلومات البطاقة",
+    "fr" => "Informations de carte",
+    "it" => "Informazioni sulla carta",
+    "es" => "Información de la tarjeta",
+    "ru" => "Информация о карте",
+    "pt" => "Informações do cartão",
+    "de" => "Karteninformation",
+    "ja" => "カード情報",
+),
+
+
+"top_header2" => array(
+    "en" => "Contact Us",
+    "mn" => "Бидэнтэй холбогдох",
+    "zh-TW" => "聯絡我們",
+    "no" => "Kontakt oss",
+    "cs" => "Kontaktujte nás",
+    "pl" => "Skontaktuj się z nami",
+    "ro" => "Contactează-ne",
+    "nl" => "Neem contact met ons op",
+    "da" => "Kontakt os",
+    "sv" => "Kontakta oss",
+    "th" => "ติดต่อเรา",
+    "vi" => "Liên hệ chúng tôi",
+    "el" => "Επικοινωνήστε μαζί μας",
+    "fi" => "Ota yhteyttä meihin",
+    "ar" => "اتصل بنا",
+    "fr" => "Contactez-nous",
+    "it" => "Contattaci",
+    "es" => "Contáctanos",
+    "ru" => "Свяжитесь с нами",
+    "pt" => "Contate-nos",
+    "de" => "Kontaktieren Sie uns",
+    "ja" => "お問い合わせ",
+),
+
+"top_header3" => array(
+    "en" => "English",
+    "ja" => "Japanese",
+    "ar" => "العربية",
+    "th" => "Thai",
+    "mn" => "Mongolian",
+    "zh-TW" => "Traditional Chinese (Taiwan)",
+    "no" => "Norwegian",
+    "cs" => "Czech",
+    "pl" => "Polish",
+    "ro" => "Romanian",
+    "nl" => "Dutch",
+    "da" => "Danish",
+    "sv" => "Swedish",
+    "vi" => "Vietnamese",
+    "el" => "Greek",
+    "fi" => "Finnish",
+    "fr" => "French",
+    "it" => "Italian",
+    "es" => "Spanish",
+    "ru" => "Russian",
+    "pt" => "Portuguese",
+    "de" => "German",
+),
+
+"top_header4" => array(
+    "en" => "Search",
+    "mn" => "Хайх",
+    "zh-TW" => "搜索",
+    "no" => "Søk",
+    "cs" => "Hledat",
+    "pl" => "Szukaj",
+    "ro" => "Căutare",
+    "nl" => "Zoeken",
+    "da" => "Søg",
+    "sv" => "Sök",
+    "th" => "ค้นหา",
+    "vi" => "Tìm kiếm",
+    "el" => "Αναζήτηση",
+    "fi" => "Haku",
+    "ar" => "بحث",
+    "fr" => "Recherche",
+    "it" => "Ricerca",
+    "es" => "Buscar",
+    "ru" => "Поиск",
+    "pt" => "Buscar",
+    "de" => "Suche",
+    "ja" => "検索",
+),
+
+"mainmenu1" => array(
+    "en" => "Track",
+    "mn" => "Sledovat",         // Mongolian
+    "zh-TW" => "追蹤",           // Traditional Chinese
+    "no" => "Spor",             // Norwegian
+    "cs" => "Sledovat",         // Czech
+    "pl" => "Śledź",            // Polish
+    "ro" => "Urmări",           // Romanian
+    "nl" => "Volgen",           // Dutch
+    "da" => "Spor",             // Danish
+    "sv" => "Spåra",            // Swedish
+    "th" => "ติดตาม",          // Thai
+    "vi" => "Theo dõi",         // Vietnamese
+    "el" => "Καταγράφω",        // Greek
+    "fi" => "Seurata",          // Finnish
+    "ar" => "تتبع",             // Arabic
+    "fr" => "Suivre",           // French
+    "it" => "Traccia",          // Italian
+    "es" => "Seguimiento",      // Spanish
+    "ru" => "Отслеживание",      // Russian
+    "pt" => "Rastrear",         // Portuguese
+    "de" => "Verfolgen",        // German
+    "ja" => "追跡",              // Japanese
+),
+
+"mainmenu2" => array(
+    "en" => "Ship",
+    "mn" => "Дэлгэрэнгүй",          // Mongolian
+    "zh-TW" => "船",               // Traditional Chinese
+    "no" => "Skip",                // Norwegian
+    "cs" => "Lod",                 // Czech
+    "pl" => "Statek",              // Polish
+    "ro" => "Navă",                // Romanian
+    "nl" => "Schip",               // Dutch
+    "da" => "Send",                // Danish
+    "sv" => "Skepp",               // Swedish
+    "th" => "เรือ",               // Thai
+    "vi" => "Vận chuyển",          // Vietnamese
+    "el" => "Πλοίο",               // Greek
+    "fi" => "Laiva",               // Finnish
+    "ar" => "شحن",                // Arabic
+    "fr" => "Expédition",          // French
+    "it" => "Nave",                // Italian
+    "es" => "Envío",               // Spanish
+    "ru" => "Судно",               // Russian
+    "pt" => "Enviar",              // Portuguese
+    "de" => "Schiff",              // German
+    "ja" => "船",                 // Japanese
+),
+
+"mainmenu3" => array(
+    "en" => "Logistics Solutions",
+    "mn" => "Логистикийн шийдэл",
+    "zh-TW" => "物流解決方案",
+    "no" => "Logistikkløsninger",
+    "cs" => "Logistická řešení",
+    "pl" => "Rozwiązania logistyczne",
+    "ro" => "Soluții logistice",
+    "nl" => "Logistieke oplossingen",
+    "da" => "Logistikløsninger",
+    "sv" => "Logistiklösningar",
+    "th" => "สารสนเทศด้านการขนส่ง",
+    "vi" => "Giải pháp logistics",
+    "el" => "Λογιστικές λύσεις",
+    "fi" => "Logistiikkaratkaisut",
+    "ar" => "حلول الخدمات اللوجستية",
+       "fr" => "Solutions logistiques",
+    "it" => "Soluzioni logistiche",
+    "es" => "Soluciones logísticas",
+    "ru" => "Логистические решения",
+    "pt" => "Soluções logísticas",
+    "de" => "Logistiklösungen",
+    "ja" => "物流ソリューション",
+),
+
+"mainmenu4" => array(
+    "en" => "Customer Service",
+    "mn" => "Хэрэглэгчийн үйлчилгээ",          // Mongolian
+    "zh-TW" => "客戶服務",               // Traditional Chinese
+    "no" => "Kundeservice",                // Norwegian
+    "cs" => "Zákaznická podpora",                 // Czech
+    "pl" => "Obsługa klienta",              // Polish
+    "ro" => "Serviciu clienți",                // Romanian
+    "nl" => "Klantenservice",               // Dutch
+    "da" => "Kundeservice",                // Danish
+    "sv" => "Kundservice",               // Swedish
+    "th" => "บริการลูกค้า",               // Thai
+    "vi" => "Dịch vụ khách hàng",          // Vietnamese
+    "el" => "Εξυπηρέτηση πελατών",               // Greek
+    "fi" => "Asiakaspalvelu",               // Finnish
+    "ar" => "خدمة العملاء",                // Arabic
+    "fr" => "Service client",          // French
+    "it" => "Servizio clienti",                // Italian
+    "es" => "Servicio al cliente",               // Spanish
+    "ru" => "Служба поддержки",               // Russian
+    "pt" => "Atendimento ao cliente",              // Portuguese
+    "de" => "Kundenservice",              // German
+    "ja" => "カスタマーサービス",                 // Japanese
+),
+
+"header-right" => array(
+    "en" => "Customer Portal Logins",
+    "mn" => "Хэрэглэгчийн портал нэвтрэх",          // Mongolian
+    "zh-TW" => "客戶門戶登錄",               // Traditional Chinese
+    "no" => "Kundeportal pålogging",                // Norwegian
+    "cs" => "Přihlášení do zákaznického portálu",                 // Czech
+    "pl" => "Logowanie do portalu klienta",              // Polish
+    "ro" => "Conectări la portalul pentru clienți",                // Romanian
+    "nl" => "Klantportaal logins",               // Dutch
+    "da" => "Kundeportal logins",                // Danish
+    "sv" => "Kundportal inloggningar",               // Swedish
+    "th" => "เข้าสู่ระบบพอร์ทัลลูกค้า",               // Thai
+    "vi" => "Đăng nhập vào cổng thông tin khách hàng",          // Vietnamese
+    "el" => "Σύνδεση στο Πύλης Πελατών",               // Greek
+    "fi" => "Asiakasportaalin kirjautumiset",               // Finnish
+    "ar" => "تسجيل دخول بوابة العملاء",                // Arabic
+    "fr" => "Connexions au portail client",          // French
+    "it" => "Accessi al portale clienti",                // Italian
+    "es" => "Accesos al portal de clientes",               // Spanish
+    "ru" => "Вход в портал клиента",               // Russian
+    "pt" => "Acessos ao portal do cliente",              // Portuguese
+    "de" => "Kundenportal-Anmeldungen",              // German
+    "ja" => "顧客ポータルのログイン",                 // Japanese
+),
+
+"footer-widget-1-header" => array(
+    "en" => "Help Center",
+    "mn" => "Тусламжийн төв",          // Mongolian
+    "zh-TW" => "幫助中心",               // Traditional Chinese
+    "no" => "Hjelpesenter",                // Norwegian
+    "cs" => "Centrum nápovědy",                 // Czech
+    "pl" => "Centrum pomocy",              // Polish
+    "ro" => "Centru de ajutor",                // Romanian
+    "nl" => "Helpcentrum",               // Dutch
+    "da" => "Hjælpecenter",                // Danish
+    "sv" => "Hjälpcenter",               // Swedish
+    "th" => "ศูนย์ช่วยเหลือ",               // Thai
+    "vi" => "Trung tâm trợ giúp",          // Vietnamese
+    "el" => "Κέντρο βοήθειας",               // Greek
+    "fi" => "Ohjekeskus",               // Finnish
+    "ar" => "مركز المساعدة",                // Arabic
+    "fr" => "Centre d'aide",          // French
+    "it" => "Centro assistenza",                // Italian
+    "es" => "Centro de ayuda",               // Spanish
+    "ru" => "Служба поддержки",               // Russian
+    "pt" => "Centro de ajuda",              // Portuguese
+    "de" => "Hilfe-Center",              // German
+    "ja" => "ヘルプセンター",                 // Japanese
+),
+
+"footer-widget-2-header" => array(
+    "en" => "Our Divisions",     // English
+    "mn" => "Төслүүд",          // Mongolian
+    "zh-TW" => "我們的分部",               // Traditional Chinese
+    "no" => "Våre divisjoner",                // Norwegian
+    "cs" => "Naše divize",                 // Czech
+    "pl" => "Nasze dywizje",              // Polish
+    "ro" => "Diviziile noastre",                // Romanian
+    "nl" => "Onze divisies",               // Dutch
+    "da" => "Vores divisioner",                // Danish
+    "sv" => "Våra divisioner",               // Swedish
+    "th" => "หน่วยงานของเรา",               // Thai
+    "vi" => "Các phân khúc của chúng tôi",          // Vietnamese
+    "el" => "Οι διαιρέσεις μας",               // Greek
+    "fi" => "Toimialamme",               // Finnish
+    "ar" => "أقسامنا",                // Arabic
+    "fr" => "Nos divisions",          // French
+    "it" => "Le nostre divisioni",                // Italian
+    "es" => "Nuestras divisiones",               // Spanish
+    "ru" => "Наши подразделения",               // Russian
+    "pt" => "Nossas divisões",              // Portuguese
+    "de" => "Unsere Abteilungen",              // German
+    "ja" => "当社の部門",                 // Japanese
+),
+
+"footer-widget-3-header" => array(
+    "en" => "Industry Sectors",     // English
+    "mn" => "Тэргүүн салбарууд",          // Mongolian
+    "zh-TW" => "行業領域",               // Traditional Chinese
+    "no" => "Bransjesektorer",                // Norwegian
+    "cs" => "Průmyslové sektory",                 // Czech
+    "pl" => "Sektory przemysłu",              // Polish
+    "ro" => "Sectoare industriale",                // Romanian
+    "nl" => "Industriële sectoren",               // Dutch
+    "da" => "Branchesektorer",                // Danish
+    "sv" => "Industrisektorer",               // Swedish
+    "th" => "กลุ่มอุตสาหกรรม",               // Thai
+    "vi" => "Các ngành công nghiệp",          // Vietnamese
+    "el" => "Τομείς βιομηχανίας",               // Greek
+    "fi" => "Teollisuuden alat",               // Finnish
+    "ar" => "قطاعات الصناعة",                // Arabic
+    "fr" => "Secteurs industriels",          // French
+    "it" => "Settori industriali",                // Italian
+    "es" => "Sectores industriales",               // Spanish
+    "ru" => "Отрасли промышленности",               // Russian
+    "pt" => "Setores industriais",              // Portuguese
+    "de" => "Industriebereiche",              // German
+    "ja" => "業界セクター",                 // Japanese
+),
+
+"footer-widget-4-header" => array(
+    "en" => "Company Information",     // English
+    "mn" => "Компанийн мэдээлэл",          // Mongolian
+    "zh-TW" => "公司資訊",               // Traditional Chinese
+    "no" => "Firminformasjon",                // Norwegian
+    "cs" => "Firemní informace",                 // Czech
+    "pl" => "Informacje o firmie",              // Polish
+    "ro" => "Informații despre companie",                // Romanian
+    "nl" => "Bedrijfsinformatie",               // Dutch
+    "da" => "Virksomhedsoplysninger",                // Danish
+    "sv" => "Företagsinformation",               // Swedish
+    "th" => "ข้อมูลบริษัท",               // Thai
+    "vi" => "Thông tin công ty",          // Vietnamese
+    "el" => "Πληροφορίες εταιρείας",               // Greek
+    "fi" => "Yritystiedot",               // Finnish
+    "ar" => "معلومات الشركة",                // Arabic
+    "fr" => "Informations sur l'entreprise",          // French
+    "it" => "Informazioni sulla società",                // Italian
+    "es" => "Información de la empresa",               // Spanish
+    "ru" => "Информация о компании",               // Russian
+    "pt" => "Informações da empresa",              // Portuguese
+    "de" => "Unternehmensinformationen",              // German
+    "ja" => "会社情報",                 // Japanese
+),
+
+"footer-widget-1-1" => array(
+    "en" => "Customer Service",     // English
+    "mn" => "Үйлчилгээний үйлчилгээ",          // Mongolian
+    "zh-TW" => "客戶服務",               // Traditional Chinese
+    "no" => "Kundeservice",                // Norwegian
+    "cs" => "Zákaznická podpora",                 // Czech
+    "pl" => "Obsługa klienta",              // Polish
+    "ro" => "Serviciu pentru clienți",                // Romanian
+    "nl" => "Klantenservice",               // Dutch
+    "da" => "Kundeservice",                // Danish
+    "sv" => "Kundtjänst",               // Swedish
+    "th" => "บริการลูกค้า",               // Thai
+    "vi" => "Dịch vụ khách hàng",          // Vietnamese
+    "el" => "Εξυπηρέτηση πελατών",               // Greek
+    "fi" => "Asiakaspalvelu",               // Finnish
+    "ar" => "خدمة العملاء",                // Arabic
+    "fr" => "Service client",          // French
+    "it" => "Servizio clienti",                // Italian
+    "es" => "Servicio al cliente",               // Spanish
+    "ru" => "Служба поддержки",               // Russian
+    "pt" => "Atendimento ao cliente",              // Portuguese
+    "de" => "Kundenservice",              // German
+    "ja" => "カスタマーサービス",                 // Japanese
+),
+
+"footer-widget-1-2" => array(
+    "en" => "Customer Portal Logins",
+    "mn" => "Хэрэглэгчийн портал логинууд",
+    "zh-TW" => "客戶門戶網站登錄",
+    "no" => "Kundeportal pålogginger",
+    "cs" => "Přihlašovací přihlášení zákazníka",
+    "pl" => "Loginy w portalu klientów",
+    "ro" => "Conectări de portal pentru clienți",
+    "nl" => "Klantportaalaanmeldingen",
+    "da" => "Kundeportal login",
+    "sv" => "Kundportalinloggningar",
+    "th" => "เข้าสู่ระบบพอร์ทัลลูกค้า",
+    "vi" => "Đăng nhập cổng thông tin khách hàng",
+    "el" => "Συνδέσεις πύλης πελατών",
+    "fi" => "Asiakasportaali kirjautuu",
+    "ar" => "تسجيل الدخول إلى بوابة العملاء",
+    "fr" => "Connexions au portail client",
+    "it" => "Accesso al portale clienti",
+    "es" => "Inicios de sesión en el portal del cliente",
+    "ru" => "Вход в портал клиента",
+    "pt" => "Logins do portal do cliente",
+    "de" => "Kundenportal-Logins",
+    "ja" => "顧客ポータルのログイン",
+),
+"footer-widget-1-3" => array(
+    "en" => "Digital Partners and Integrations",
+    "mn" => "Дижитал түншүүд, интеграцууд",
+    "zh-TW" => "數字合作夥伴和集成",
+    "no" => "Digitale partnere og integrasjoner",
+    "cs" => "Digitální partneři a integrace",
+    "pl" => "Partnerzy cyfrowi i integracje",
+    "ro" => "Parteneri și integrări digitale",
+    "nl" => "Digitale partners en integraties",
+    "da" => "Digitale partnere og integrationer",
+    "sv" => "Digitala partners och integrationer",
+    "th" => "พันธมิตรดิจิทัลและการบูรณาการ",
+    "vi" => "Đối tác kỹ thuật số và tích hợp",
+    "el" => "Ψηφιακοί εταίροι και ενσωματώσεις",
+    "fi" => "Digitaaliset kumppanit ja integraatiot",
+    "ar" => "شركاء وتكامل رقمي",
+    "fr" => "Partenaires et intégrations numériques",
+    "it" => "Partner digitali e integrazioni",
+    "es" => "Socios e integraciones digitales",
+    "ru" => "Цифровые партнеры и интеграции",
+    "pt" => "Parceiros e integrações digitais",
+    "de" => "Digitale Partner und Integrationen",
+    "ja" => "デジタルパートナーと統合",
+),
+
+"footer-widget-1-4" => array(
+    "en" => "Developer Portal",
+    "mn" => "Хөгжүүлэгч портал",
+    "zh-TW" => "開發人員門戶",
+    "no" => "Utviklerportal",
+    "cs" => "Portál vývojáře",
+    "pl" => "Portal programisty",
+    "ro" => "Portal de dezvoltatori",
+    "nl" => "Ontwikkelaarsportaal",
+    "da" => "Udviklerportal",
+    "sv" => "Utvecklarportal",
+    "th" => "พอร์ทัลนักพัฒนา",
+    "vi" => "Cổng thông tin nhà phát triển",
+    "el" => "Πύλη προγραμματιστών",
+    "fi" => "Kehitysportaali",
+    "ar" => "بوابة المطور",
+    "fr" => "Portail du développeur",
+    "it" => "Portale sviluppatori",
+    "es" => "Portal de desarrolladores",
+    "ru" => "Портал разработчика",
+    "pt" => "Portal do desenvolvedor",
+    "de" => "Entwicklerportal",
+    "ja" => "開発者ポータル",
+),
+
+"footer-widget-2-1" => array(
+    "en" => "Post and Parcel Germany",
+    "mn" => "Шуудан, илгээмж Герман",
+    "zh-TW" => "德國郵政和包裹",
+    "no" => "Post og Parcel Tyskland",
+    "cs" => "Post a Balíček Německo",
+    "pl" => "Post and Parcel Niemcy",
+    "ro" => "Post și colet Germania",
+    "nl" => "Post en Parcel Duitsland",
+    "da" => "Post og Pakke Tyskland",
+    "sv" => "Post och paket Tyskland",
+    "th" => "โพสต์และพัสดุเยอรมนี",
+    "vi" => "Bài và bưu kiện Đức",
+    "el" => "Δημοσίευση και αγροτεμάχια Γερμανία",
+    "fi" => "Post ja paketti Saksa",
+    "ar" => "بريد وطرود ألمانيا",
+    "fr" => "Courrier et colis en Allemagne",
+    "it" => "Posta e pacchi in Germania",
+    "es" => "Correo y paquetes en Alemania",
+    "ru" => "Почта и посылки в Германии",
+    "pt" => "Correio e encomendas na Alemanha",
+    "de" => "Post und Paket Deutschland",
+    "ja" => "ドイツの郵便と小包",
+),
+
+"footer-widget-2-2" => array(
+    "en" => "DHL Express",
+    "mn" => "Dhl Express",
+    "zh-TW" => "DHL Express",
+    "no" => "DHL Express",
+    "cs" => "DHL Express",
+    "pl" => "DHL Express",
+    "ro" => "DHL Express",
+    "nl" => "DHL Express",
+    "da" => "DHL Express",
+    "sv" => "DHL Express",
+    "th" => "DHL Express",
+    "vi" => "chuyển phát nhanh DHL",
+    "el" => "DHL Express",
+    "fi" => "DHL Express",
+    "ar" => "دي إتش إل إكسبريس",
+    "fr" => "DHL Express",
+    "it" => "DHL Express",
+    "es" => "DHL Express",
+    "ru" => "DHL Express",
+    "pt" => "DHL Express",
+    "de" => "DHL Express",
+    "ja" => "DHLエクスプレス",
+),
+
+"footer-widget-2-3" => array(
+    "en" => "DHL Global Forwarding",
+    "mn" => "DHL Глобал дамжуулалт",
+    "zh-TW" => "DHL全球轉發",
+    "no" => "DHL Global Videresending",
+    "cs" => "DHL Global Forwarding",
+    "pl" => "Globalne przekazywanie DHL",
+    "ro" => "Trimiterea globală DHL",
+    "nl" => "DHL Global Forwarding",
+    "da" => "DHL Global Videresendelse",
+    "sv" => "DHL Global Forwarding",
+    "th" => "การส่งต่อ Global Global",
+    "vi" => "Chuyển tiếp toàn cầu DHL",
+    "el" => "DHL Global Fallense",
+    "fi" => "DHL Global Forwarding",
+    "ar" => "دي إتش إل جلوبال فورواردينغ",
+    "fr" => "DHL Global Forwarding",
+    "it" => "DHL Global Forwarding",
+    "es" => "DHL Global Forwarding",
+    "ru" => "DHL Global Forwarding",
+    "pt" => "DHL Global Forwarding",
+    "de" => "DHL Global Forwarding",
+    "ja" => "DHLグローバルフォワーディング",
+),
+
+"footer-widget-2-4" => array(
+    "en" => "DHL Freight",
+    "mn" => "DHL Ачаа",
+    "zh-TW" => "DHL貨運",
+    "no" => "Dhl gods",
+    "cs" => "DHL Freight",
+    "pl" => "DHL Freight",
+    "ro" => "DHL FREAGHT",
+    "nl" => "DHL -vracht",
+    "da" => "DHL fragt",
+    "sv" => "DHL -frakt",
+    "th" => "DHL ขนส่งสินค้า",
+    "vi" => "DHL vận chuyển hàng hóa",
+    "el" => "DHL Freight",
+    "fi" => "DHL -rahti",
+    "ar" => "دي إتش إل فريت",
+    "fr" => "DHL Freight",
+    "it" => "DHL Freight",
+    "es" => "DHL Freight",
+    "ru" => "DHL Freight",
+    "pt" => "DHL Freight",
+    "de" => "DHL Freight",
+    "ja" => "DHLフレート",
+),
+
+"footer-widget-2-5" => array(
+    "en" => "DHL Supply Chain",
+    "mn" => "DHL хангамжийн сүлжээ",
+    "zh-TW" => "DHL供應鏈",
+    "no" => "DHL forsyningskjede",
+    "cs" => "DHL dodavatelský řetězec",
+    "pl" => "Łańcuch dostaw DHL",
+    "ro" => "Lanț de aprovizionare DHL",
+    "nl" => "DHL Supply Chain",
+    "da" => "DHL -forsyningskæde",
+    "sv" => "DHL -leveranskedja",
+    "th" => "ห่วงโซ่อุปทาน DHL",
+    "vi" => "Chuỗi cung ứng DHL",
+    "el" => "Αλυσίδα εφοδιασμού DHL",
+    "fi" => "DHL -toimitusketju",
+    "ar" => "دي إتش إل سبلاي شين",
+    "fr" => "DHL Supply Chain",
+    "it" => "DHL Supply Chain",
+    "es" => "DHL Supply Chain",
+    "ru" => "DHL Supply Chain",
+    "pt" => "DHL Supply Chain",
+    "de" => "DHL Supply Chain",
+    "ja" => "DHLサプライチェーン",
+),
+
+"footer-widget-2-6" => array(
+    "en" => "DHL eCommerce",
+    "mn" => "DHLimitMETH-ыг",
+    "zh-TW" => "DHL電子商務",
+    "no" => "DHL e -handel",
+    "cs" => "DHL eCommerce",
+    "pl" => "DHL eCommerce",
+    "ro" => "ECHEMERCE DHL",
+    "nl" => "DHL -e -commerce",
+    "da" => "DHL e -handel",
+    "sv" => "DHL -e -handel",
+    "th" => "DHL Ecommerce",
+    "vi" => "DHL Thương mại điện tử",
+    "el" => "DHL ηλεκτρονικό εμπόριο",
+    "fi" => "DHL -verkkokauppa",
+    "ar" => "دي إتش إل التجارة الإلكترونية",
+    "fr" => "DHL eCommerce",
+    "it" => "DHL eCommerce",
+    "es" => "DHL eCommerce",
+    "ru" => "DHL eCommerce",
+    "pt" => "DHL eCommerce",
+    "de" => "DHL eCommerce",
+    "ja" => "DHL電子商取引",
+),
+
+"footer-widget-3-1" => array(
+    "en" => "Auto-Mobility",
+    "mn" => "Авто хөдөлгөөнт байдал",
+    "zh-TW" => "自動運動",
+    "no" => "Auto-mobilitet",
+    "cs" => "Auto-mobilita",
+    "pl" => "Auto-mobilność",
+    "ro" => "Auto-mobilitate",
+    "nl" => "Automatisch",
+    "da" => "Auto-mobilitet",
+    "sv" => "Automobilitet",
+    "th" => "ความเคลื่อนไหวอัตโนมัติ",
+    "vi" => "Tự động di động",
+    "el" => "Αυτόματη κινητικότητα",
+    "fi" => "Automaattinen liikkuvuus",
+    "ar" => "النقل الذاتي",
+    "fr" => "Automobilité",
+    "it" => "Automobilità",
+    "es" => "Movilidad automotriz",
+    "ru" => "Автомобильная мобильность",
+    "pt" => "Mobilidade automotiva",
+    "de" => "Auto-Mobilität",
+    "ja" => "自動車の移動",
+),
+
+"footer-widget-3-2" => array(
+    "en" => "Chemicals",
+    "mn" => "Химим засал",
+    "zh-TW" => "化學物質",
+    "no" => "Kjemikalier",
+    "cs" => "Chemikálie",
+    "pl" => "Chemikalia",
+    "ro" => "Produse chimice",
+    "nl" => "Chemicaliën",
+    "da" => "Kemikalier",
+    "sv" => "Kemikalier",
+    "th" => "สารเคมี",
+    "vi" => "Hóa chất",
+    "el" => "Χημικά",
+    "fi" => "Kemikaalit",
+    "ar" => "المواد الكيميائية",
+    "fr" => "Produits chimiques",
+    "it" => "Prodotti chimici",
+    "es" => "Productos químicos",
+    "ru" => "Химическая промышленность",
+    "pt" => "Produtos químicos",
+    "de" => "Chemikalien",
+    "ja" => "化学物質",
+),
+
+
+"footer-widget-3-3" => array(
+    "en" => "Consumer",
+    "mn" => "Хэрэгчин",
+    "zh-TW" => "消費者",
+    "no" => "Forbruker",
+    "cs" => "Spotřebitel",
+    "pl" => "Konsument",
+    "ro" => "Consumator",
+    "nl" => "Klant",
+    "da" => "Forbruger",
+    "sv" => "Konsument",
+    "th" => "ผู้บริโภค",
+    "vi" => "Người tiêu dùng",
+    "el" => "Καταναλωτής",
+    "fi" => "Kuluttaja",
+    "ar" => "المستهلك",
+    "fr" => "Consommateur",
+    "it" => "Consumer",
+    "es" => "Consumidor",
+    "ru" => "Потребительский рынок",
+    "pt" => "Consumidor",
+    "de" => "Verbraucher",
+    "ja" => "消費者",
+),
+
+"footer-widget-3-4" => array(
+    "en" => "Energy",
+    "mn" => "Эрч хүч",
+    "zh-TW" => "活力",
+    "no" => "Energi",
+    "cs" => "Energie",
+    "pl" => "Energia",
+    "ro" => "Energie",
+    "nl" => "Energie",
+    "da" => "Energi",
+    "sv" => "Energi",
+    "th" => "พลังงาน",
+    "vi" => "Năng lượng",
+    "el" => "Ενέργεια",
+    "fi" => "Energia",
+    "ar" => "الطاقة",
+    "fr" => "Énergie",
+    "it" => "Energia",
+    "es" => "Energía",
+    "ru" => "Энергетика",
+    "pt" => "Energia",
+    "de" => "Energie",
+    "ja" => "エネルギー",
+),
+
+"footer-widget-3-5" => array(
+    "en" => "Engineering and Manufacturing",
+    "mn" => "Инженер ба үйлдвэрлэл",
+    "zh-TW" => "工程和製造",
+    "no" => "Ingeniørfag og produksjon",
+    "cs" => "Inženýrství a výroba",
+    "pl" => "Inżynieria i produkcja",
+    "ro" => "Inginerie și fabricație",
+    "nl" => "Engineering en productie",
+    "da" => "Ingeniørvidenskab og fremstilling",
+    "sv" => "Teknik och tillverkning",
+    "th" => "วิศวกรรมและการผลิต",
+    "vi" => "Kỹ thuật và sản xuất",
+    "el" => "Τεχνική και Κατασκευή",
+    "fi" => "Tekniikka ja valmistus",
+    "ar" => "الهندسة والتصنيع",
+    "fr" => "Ingénierie et fabrication",
+    "it" => "Ingegneria e produzione",
+    "es" => "Ingeniería y fabricación",
+    "ru" => "Инженерное дело и производство",
+    "pt" => "Engenharia e fabricação",
+    "de" => "Ingenieurwesen und Fertigung",
+    "ja" => "エンジニアリングと製造",
+),
+
+"footer-widget-3-6" => array(
+    "en" => "Life Sciences and Healthcare",
+    "mn" => "Амьдралын шинжлэх ухаан, эрүүл мэндийн үйлчилгээ",
+    "zh-TW" => "生命科學和醫療保健",
+    "no" => "Livsvitenskap og helsevesen",
+    "cs" => "Životní vědy a zdravotní péče",
+    "pl" => "Nauk o życie i opieka zdrowotna",
+    "ro" => "Științele vieții și asistența medicală",
+    "nl" => "Levenwetenschappen en gezondheidszorg",
+    "da" => "Livsvidenskab og sundhedsydelser",
+    "sv" => "Life Sciences and Healthcare",
+    "th" => "วิทยาศาสตร์เพื่อชีวิตและการดูแลสุขภาพ",
+    "vi" => "Khoa học đời sống và chăm sóc sức khỏe",
+    "el" => "Οι επιστήμες της ζωής και η υγειονομική περίθαλψη",
+    "fi" => "Biotieteet ja terveydenhuolto",
+    "ar" => "العلوم الحياتية والرعاية الصحية",
+    "fr" => "Sciences de la vie et santé",
+    "it" => "Scienze della vita e assistenza sanitaria",
+    "es" => "Ciencias de la vida y atención médica",
+    "ru" => "Науки о жизни и здравоохранение",
+    "pt" => "Ciências da vida e cuidados de saúde",
+    "de" => "Lebenswissenschaften und Gesundheitswesen",
+    "ja" => "ライフサイエンスとヘルスケア",
+),
+
+"footer-widget-3-7" => array(
+    "en" => "Public Sector",
+    "mn" => "Олон нийтийн салбарын",
+    "zh-TW" => "公共部門",
+    "no" => "Offentlig sektor",
+    "cs" => "Veřejný sektor",
+    "pl" => "Sektor publiczny",
+    "ro" => "Sector public",
+    "nl" => "Publieke sector",
+    "da" => "Offentlige sektor",
+    "sv" => "Offentlig sektor",
+    "th" => "ภาครัฐ",
+    "vi" => "Khu vực công",
+    "el" => "Του δημόσιου τομέα",
+    "fi" => "Julkisen sektorin",
+    "ar" => "القطاع العام",
+    "fr" => "Secteur public",
+    "it" => "Settore pubblico",
+    "es" => "Sector público",
+    "ru" => "Государственный сектор",
+    "pt" => "Setor público",
+    "de" => "Öffentlicher Sektor",
+    "ja" => "公共部門",
+),
+
+"footer-widget-3-8" => array(
+    "en" => "Retail",
+    "mn" => "Жижиглэн худалдаа",
+    "zh-TW" => "零售",
+    "no" => "Detaljhandel",
+    "cs" => "Maloobchodní",
+    "pl" => "Sprzedaż detaliczna",
+    "ro" => "Cu amănuntul",
+    "nl" => "Detailhandel",
+    "da" => "Detailhandel",
+    "sv" => "Detaljhandeln",
+    "th" => "ขายปลีก",
+    "vi" => "Bán lẻ",
+    "el" => "Λιανεμποριο",
+    "fi" => "Jälleenmyynti",
+    "ar" => "التجزئة",
+    "fr" => "Vente au détail",
+    "it" => "Rivendita",
+    "es" => "Venta al por menor",
+    "ru" => "Розничная торговля",
+    "pt" => "Varejo",
+    "de" => "Einzelhandel",
+    "ja" => "小売業",
+),
+
+"footer-widget-3-9" => array(
+    "en" => "Technology",
+    "mn" => "Технологи",
+    "zh-TW" => "技術",
+    "no" => "Teknologi",
+    "cs" => "Technika",
+    "pl" => "Technologia",
+    "ro" => "Tehnologie",
+    "nl" => "Technologie",
+    "da" => "Teknologi",
+    "sv" => "Teknologi",
+    "th" => "เทคโนโลยี",
+    "vi" => "Công nghệ",
+    "el" => "Τεχνολογία",
+    "fi" => "Tekniikka",
+    "ar" => "تكنولوجيا",
+    "fr" => "Technologie",
+    "it" => "Tecnologia",
+    "es" => "Tecnología",
+    "ru" => "Технологии",
+    "pt" => "Tecnologia",
+    "de" => "Technologie",
+    "ja" => "テクノロジー",
+),
+
+
+"footer-widget-4-1" => array(
+    "en" => "About DHL",
+    "mn" => "Dhl тухай",
+    "zh-TW" => "關於DHL",
+    "no" => "Om DHL",
+    "cs" => "O DHL",
+    "pl" => "O DHL",
+    "ro" => "Despre DHL",
+    "nl" => "Over DHL",
+    "da" => "Om DHL",
+    "sv" => "Om DHL",
+    "th" => "เกี่ยวกับ DHL",
+    "vi" => "Về DHL",
+    "el" => "Σχετικά με το DHL",
+    "fi" => "Tietoja DHL: stä",
+    "ar" => "حول دي إتش إل",
+    "fr" => "À propos de DHL",
+    "it" => "Informazioni su DHL",
+    "es" => "Acerca de DHL",
+    "ru" => "О DHL",
+    "pt" => "Sobre a DHL",
+    "de" => "Über DHL",
+    "ja" => "DHLについて",
+),
+"footer-widget-4-2" => array(
+    "en" => "Careers",
+    "mn" => "Ажил занаа",
+    "zh-TW" => "職業",
+    "no" => "Karrierer",
+    "cs" => "Kariéra",
+    "pl" => "Kariera",
+    "ro" => "Cariere",
+    "nl" => "Carrière",
+    "da" => "Karrierer",
+    "sv" => "Karriär",
+    "th" => "อาชีพ",
+    "vi" => "Sự nghiệp",
+    "el" => "Καριέρα",
+    "fi" => "Ura",
+    "ar" => "الوظائف",
+    "fr" => "Carrières",
+    "it" => "Carriere",
+    "es" => "Carreras",
+    "ru" => "Карьера в DHL",
+    "pt" => "Carreiras",
+    "de" => "Karriere",
+    "ja" => "キャリア",
+),
+"footer-widget-4-3" => array(
+    "en" => "Press Center",
+    "mn" => "Автомат товчитын хятад",
+    "zh-TW" => "按下中心",
+    "no" => "Pressesenter",
+    "cs" => "Tiskové centrum",
+    "pl" => "Centrum prasowe",
+    "ro" => "Centru de presă",
+    "nl" => "Perscentrum",
+    "da" => "Press Center",
+    "sv" => "Presscenter",
+    "th" => "กดศูนย์",
+    "vi" => "Trung tâm báo chí",
+    "el" => "Κέντρο Τύπου",
+    "fi" => "Lehdistökeskus",
+    "ar" => "مركز الصحافة",
+    "fr" => "Centre de presse",
+    "it" => "Centro stampa",
+    "es" => "Centro de prensa",
+    "ru" => "Пресс-центр",
+    "pt" => "Centro de imprensa",
+    "de" => "Pressezentrum",
+    "ja" => "プレスセンター",
+),
+"footer-widget-4-4" => array(
+    "en" => "Sustainability",
+    "mn" => "Тогтвортой байдал",
+    "zh-TW" => "可持續性",
+    "no" => "Bærekraft",
+    "cs" => "Udržitelnost",
+    "pl" => "Zrównoważony rozwój",
+    "ro" => "Durabilitate",
+    "nl" => "Duurzaamheid",
+    "da" => "Bæredygtighed",
+    "sv" => "Hållbarhet",
+    "th" => "ความยั่งยืน",
+    "vi" => "Sự bền vững",
+    "el" => "Βιωσιμότητα",
+    "fi" => "Kestävyys",
+    "ar" => "الاستدامة",
+    "fr" => "Durabilité",
+    "it" => "Sostenibilità",
+    "es" => "Sostenibilidad",
+    "ru" => "Устойчивость",
+    "pt" => "Sustentabilidade",
+    "de" => "Nachhaltigkeit",
+    "ja" => "持続可能性",
+),
+"footer-widget-4-5" => array(
+    "en" => "Insights and Innovation",
+    "mn" => "Ойлголт, инноваци",
+    "zh-TW" => "見解和創新",
+    "no" => "Innsikt og innovasjon",
+    "cs" => "Poznatky a inovace",
+    "pl" => "Wgląd i innowacje",
+    "ro" => "Perspective și inovație",
+    "nl" => "Inzichten en innovatie",
+    "da" => "Indsigt og innovation",
+    "sv" => "Insikter och innovation",
+    "th" => "ข้อมูลเชิงลึกและนวัตกรรม",
+    "vi" => "Hiểu biết và đổi mới",
+    "el" => "Insights and Innovation",
+    "fi" => "Oivallukset ja innovaatiot",
+    "ar" => "الرؤى والابتكار",
+    "fr" => "Aperçus et innovation",
+    "it" => "Insight e innovazione",
+    "es" => "Perspectivas e innovación",
+    "ru" => "Взгляды и инновации",
+    "pt" => "Perspectivas e inovação",
+    "de" => "Einsichten und Innovationen",
+    "ja" => "インサイトとイノベーション",
+),
+"footer-widget-4-6" => array(
+    "en" => "Official Logistics Partners",
+    "mn" => "Албан ёсны логистикийн түншүүд",
+    "zh-TW" => "官方物流合作夥伴",
+    "no" => "Offisielle logistikkpartnere",
+    "cs" => "Oficiální logistické partnery",
+    "pl" => "Oficjalni partnerzy logistyczni",
+    "ro" => "Parteneri oficiali de logistică",
+    "nl" => "Officiële logistieke partners",
+    "da" => "Officielle logistikpartnere",
+    "sv" => "Officiella logistikpartners",
+    "th" => "พันธมิตรโลจิสติกส์อย่างเป็นทางการ",
+    "vi" => "Đối tác hậu cần chính thức",
+    "el" => "Επίσημοι εταίροι εφοδιαστικής",
+    "fi" => "Viralliset logistiikkakumppanit",
+    "ar" => "شركاء الخدمات اللوجستية الرسميون",
+    "fr" => "Partenaires logistiques officiels",
+    "it" => "Partner logistici ufficiali",
+    "es" => "Socios logísticos oficiales",
+    "ru" => "Официальные логистические партнеры",
+    "pt" => "Parceiros logísticos oficiais",
+    "de" => "Offizielle Logistikpartner",
+    "ja" => "公式物流パートナー",
+),
+
+
+"follow-us" => array(
+    "en" => "Follow Us",
+    "mn" => "Биднийг дага",
+    "zh-TW" => "跟著我們",
+    "no" => "Følg oss",
+    "cs" => "Následuj nás",
+    "pl" => "Podążaj za nami",
+    "ro" => "Urmați-ne",
+    "nl" => "Volg ons",
+    "da" => "Følg os",
+    "sv" => "Följ oss",
+    "th" => "ตามเรามา",
+    "vi" => "Theo chúng tôi",
+    "el" => "Ακολουθησε μας",
+    "fi" => "Seuraa meitä",
+    "ar" => "تابعنا",
+    "fr" => "Suivez-nous",
+    "it" => "Seguici",
+    "es" => "Síguenos",
+    "ru" => "Следите за нами",
+    "pt" => "Siga-nos",
+    "de" => "Folgen Sie uns",
+    "ja" => "フォローアップ",
+),
+"footer-menu-1" => array(
+    "en" => "Fraud Awareness",
+    "mn" => "Хуурамч мэдлэг",
+    "zh-TW" => "欺詐意識",
+    "no" => "Svindelbevissthet",
+    "cs" => "Povědomí o podvodech",
+    "pl" => "Świadomość oszustw",
+    "ro" => "Conștientizarea fraudei",
+    "nl" => "Bewustzijn van fraude",
+    "da" => "Bevidsthed om svig",
+    "sv" => "Medvetenhet om bedrägeri",
+    "th" => "การรับรู้การฉ้อโกง",
+    "vi" => "Nhận thức gian lận",
+    "el" => "Συνειδητοποίηση απάτης",
+    "fi" => "Petostietoisuus",
+    "ar" => "الوعي بالاحتيال",
+    "fr" => "Sensibilisation à la fraude",
+    "it" => "Sensibilizzazione alla frode",
+    "es" => "Conciencia sobre el fraude",
+    "ru" => "Предотвращение мошенничества",
+    "pt" => "Conscientização sobre fraudes",
+    "de" => "Betrugsprävention",
+    "ja" => "詐欺防止",
+),
+"footer-menu-2" => array(
+    "en" => "Legal Notice",
+    "mn" => "Хуулийн мэдээ",
+    "zh-TW" => "法律聲明",
+    "no" => "Juridisk varsel",
+    "cs" => "Zákonné oznámení",
+    "pl" => "Nota prawna",
+    "ro" => "Aviz juridic",
+    "nl" => "Wettelijke kennisgeving",
+    "da" => "Juridisk meddelelse",
+    "sv" => "Rättsligt meddelande",
+    "th" => "ประกาศทางกฎหมาย",
+    "vi" => "Thông báo pháp lý",
+    "el" => "Νομική ειδοποίηση",
+    "fi" => "Oikeudellinen huomautus",
+    "ar" => "إشعار قانوني",
+    "fr" => "Mentions légales",
+    "it" => "Avviso legale",
+    "es" => "Aviso legal",
+    "ru" => "Юридическое уведомление",
+    "pt" => "Aviso legal",
+    "de" => "Rechtlicher Hinweis",
+    "ja" => "法的通知",
+),
+"footer-menu-3" => array(
+    "en" => "Terms of Use",
+    "mn" => "Хэрэглээний Нормц",
+    "zh-TW" => "使用條款",
+    "no" => "Vilkår for bruk",
+    "cs" => "Podmínky použití",
+    "pl" => "Warunki korzystania",
+    "ro" => "Termeni de utilizare",
+    "nl" => "Gebruiksvoorwaarden",
+    "da" => "Brugsbetingelser",
+    "sv" => "Villkor",
+    "th" => "ข้อกำหนดการใช้งาน",
+    "vi" => "Điều khoản sử dụng",
+    "el" => "Οροι χρήσης",
+    "fi" => "Käyttöehdot",
+    "ar" => "شروط الاستخدام",
+    "fr" => "Conditions d'utilisation",
+    "it" => "Condizioni d'uso",
+    "es" => "Condiciones de uso",
+    "ru" => "Условия использования",
+    "pt" => "Termos de uso",
+    "de" => "Nutzungsbedingungen",
+    "ja" => "利用規約",
+),
+"footer-menu-4" => array(
+    "en" => "Privacy Notice",
+    "mn" => "Нууцлалын мэдэгдэл",
+    "zh-TW" => "隱私聲明",
+    "no" => "Personvern",
+    "cs" => "Oznámení o ochraně osobních údajů",
+    "pl" => "Uwaga na prywatność",
+    "ro" => "Notificare de confidențialitate",
+    "nl" => "Privacyverklaring",
+    "da" => "PRIVACY MEDDELELSE",
+    "sv" => "Integritetsmeddelande",
+    "th" => "แจ้งให้ทราบความเป็นส่วนตัว",
+    "vi" => "Thông báo riêng tư",
+    "el" => "Ειδοποίηση απορρήτου",
+    "fi" => "Tietosuojahuone",
+    "ar" => "إشعار الخصوصية",
+    "fr" => "Avis de confidentialité",
+    "it" => "Informativa sulla privacy",
+    "es" => "Aviso de privacidad",
+    "ru" => "Уведомление о конфиденциальности",
+    "pt" => "Aviso de privacidade",
+    "de" => "Datenschutzerklärung",
+    "ja" => "プライバシーに関するお知らせ",
+),
+"footer-menu-5" => array(
+    "en" => "Dispute Resolution",
+    "mn" => "Маргаан шийдвэрлэх",
+    "zh-TW" => "爭議解決",
+    "no" => "Tvisteløsning",
+    "cs" => "Řešení sporů",
+    "pl" => "Rozwiązywanie sporów",
+    "ro" => "Soluționare a litigiilor",
+    "nl" => "Geschillenbeslechting",
+    "da" => "Konfliktløsning",
+    "sv" => "Tvistlösning",
+    "th" => "การระงับข้อพิพาท",
+    "vi" => "Giải quyết tranh chấp",
+    "el" => "Επίλυση διαφοράς",
+    "fi" => "Riidanratkaisu",
+    "ar" => "حل النزاعات",
+    "fr" => "Règlement des différends",
+    "it" => "Risoluzione delle controversie",
+    "es" => "Resolución de disputas",
+    "ru" => "Разрешение споров",
+    "pt" => "Resolução de disputas",
+    "de" => "Konfliktlösung",
+    "ja" => "紛争の解決",
+),
+"footer-menu-6" => array(
+    "en" => "Accessibility",
+    "mn" => "Хал Гадалт",
+    "zh-TW" => "可訪問性",
+    "no" => "tilgjengelighet",
+    "cs" => "Přístupnost",
+    "pl" => "Dostępność",
+    "ro" => "Accesibilitate",
+    "nl" => "Toegankelijkheid",
+    "da" => "Tilgængelighed",
+    "sv" => "Tillgänglighet",
+    "th" => "การเข้าถึงได้",
+    "vi" => "Khả năng tiếp cận",
+    "el" => "Προσιτότητα",
+    "fi" => "Saavutettavuus",
+    "ar" => "إمكانية الوصول",
+    "fr" => "Accessibilité",
+    "it" => "Accessibilità",
+    "es" => "Accesibilidad",
+    "ru" => "Доступность",
+    "pt" => "Acessibilidade",
+    "de" => "Barrierefreiheit",
+    "ja" => "アクセシビリティ",
+),
+"footer-menu-7" => array(
+    "en" => "Additional Information",
+    "mn" => "Нэмэлт мэдээлэл",
+    "zh-TW" => "附加信息",
+    "no" => "Ytterligere informasjon",
+    "cs" => "dodatečné informace",
+    "pl" => "Dodatkowe informacje",
+    "ro" => "Informații suplimentare",
+    "nl" => "Extra informatie",
+    "da" => "Yderligere Information",
+    "sv" => "ytterligare information",
+    "th" => "ข้อมูลเพิ่มเติม",
+    "vi" => "thông tin thêm",
+    "el" => "Επιπλέον πληροφορίες",
+    "fi" => "lisäinformaatio",
+    "ar" => "معلومات إضافية",
+    "fr" => "Informations supplémentaires",
+    "it" => "Informazioni aggiuntive",
+    "es" => "Información adicional",
+    "ru" => "Дополнительная информация",
+    "pt" => "Informações adicionais",
+    "de" => "Zusätzliche Informationen",
+    "ja" => "追加情報",
+),
+"footer-menu-8" => array(
+    "en" => "Cookies Settings",
+    "mn" => "Жигнэмэгийн тохиргоо",
+    "zh-TW" => "cookies設置",
+    "no" => "Innstillinger for informasjonskapsler",
+    "cs" => "Nastavení cookies",
+    "pl" => "Ustawienia plików cookie",
+    "ro" => "Setări cookie -uri",
+    "nl" => "Cookies -instellingen",
+    "da" => "Cookies -indstillinger",
+    "sv" => "Cookies -inställningar",
+    "th" => "การตั้งค่าคุกกี้",
+    "vi" => "Cài đặt cookie",
+    "el" => "Ρυθμίσεις cookies",
+    "fi" => "Evästeet asetukset",
+    "ar" => "إعدادات ملفات تعريف الارتباط",
+    "fr" => "Paramètres des cookies",
+    "it" => "Impostazioni dei cookie",
+    "es" => "Configuración de cookies",
+    "ru" => "Настройки файлов cookie",
+    "pt" => "Configurações de cookies",
+    "de" => "Cookie-Einstellungen",
+    "ja" => "Cookieの設定",
+),
+"copyright" => array(
+    "en" => "2023 © DHL International GmbH. All rights reserved",
+    "mn" => "2023 © DHL Олон улсын GMBH.Бүх эрх хамгаалагдсан",
+    "zh-TW" => "2023©DHL國際GmbH。版權所有",
+    "no" => "2023 © DHL International Gmbh.Alle rettigheter forbeholdt",
+    "cs" => "2023 © DHL International GmbH.Všechna práva vyhrazena",
+    "pl" => "2023 © DHL International GmbH.Wszelkie prawa zastrzeżone",
+    "ro" => "2023 © DHL International GmbH.Toate drepturile rezervate",
+    "nl" => "2023 © DHL International GmbH.Alle rechten voorbehouden",
+    "da" => "2023 © DHL International GmbH.Alle rettigheder forbeholdes",
+    "sv" => "2023 © DHL International GmbH.Alla rättigheter förbehållna",
+    "th" => "2023 © DHL International GmbHสงวนลิขสิทธิ์",
+    "vi" => "2023 © DHL International GmbH.Đã đăng ký Bản quyền",
+    "el" => "2023 © DHL International GMBH.Ολα τα δικαιώματα διατηρούνται",
+    "fi" => "2023 © DHL International GmbH.Kaikki oikeudet pidätetään",
+    "ar" => "2023 © دي إتش إل إنترناشونال جميع الحقوق محفوظة",
+    "fr" => "2023 © DHL International GmbH. Tous droits réservés",
+    "it" => "2023 © DHL International GmbH. Tutti i diritti riservati",
+    "es" => "2023 © DHL International GmbH. Todos los derechos reservados",
+    "ru" => "2023 © DHL International GmbH. Все права защищены",
+    "pt" => "2023 © DHL International GmbH. Todos os direitos reservados",
+    "de" => "2023 © DHL International GmbH. Alle Rechte vorbehalten",
+    "ja" => "2023 © DHL International GmbH. All rights reserved",
+),
+
+"title2" => array(
+    "en" => "Shipment On Hold",     // English
+    "mn" => "Хүлээн авсан газрын шилжүүлэг",          // Mongolian
+    "zh-TW" => "運送暫停",               // Traditional Chinese
+    "no" => "Forsendelse på vent",                // Norwegian
+    "cs" => "Zásilka pozastavena",                 // Czech
+    "pl" => "Przesyłka wstrzymana",              // Polish
+    "ro" => "Expediere în așteptare",                // Romanian
+    "nl" => "Zending in de wacht",               // Dutch
+    "da" => "Forsendelse på hold",                // Danish
+    "sv" => "Försändelse pausad",               // Swedish
+    "th" => "การขนส่งหยุดชั่วคราว",               // Thai
+    "vi" => "Lô hàng bị giữ lại",          // Vietnamese
+    "el" => "Το αποστείλαμα σε αναμονή",               // Greek
+    "fi" => "Lähetys pidätetty",               // Finnish
+    "ar" => "شحنة في الانتظار",                // Arabic
+    "fr" => "Expédition en attente",          // French
+    "it" => "Spedizione in attesa",                // Italian
+    "es" => "Envío en espera",               // Spanish
+    "ru" => "Отправление на удержании",               // Russian
+    "pt" => "Envio em espera",              // Portuguese
+    "de" => "Lieferung angehalten",              // German
+    "ja" => "出荷保留中",                 // Japanese
+),
+
+"status" => array(
+    "en" => "Status: <b> On Hold </b>",     // English
+    "mn" => "Статус: <b> В ожидании </b>",          // Mongolian
+    "zh-TW" => "狀態：<b>暫停</b>",               // Traditional Chinese
+    "no" => "Status: <b> På vent </b>",                // Norwegian
+    "cs" => "Stav: <b> Na čekání </b>",                 // Czech
+    "pl" => "Status: <b> Wstrzymano </b>",              // Polish
+    "ro" => "Stare: <b> În așteptare </b>",                // Romanian
+    "nl" => "Status: <b> In de wacht </b>",               // Dutch
+    "da" => "Status: <b> Afventer </b>",                // Danish
+    "sv" => "Status: <b> Väntar </b>",               // Swedish
+    "th" => "สถานะ: <b> ระงับ </b>",               // Thai
+    "vi" => "Trạng thái: <b> Đang giữ </b>",          // Vietnamese
+    "el" => "Κατάσταση: <b> Σε αναμονή </b>",               // Greek
+    "fi" => "Tila: <b> Pidätetty </b>",               // Finnish
+    "ar" => "الحالة: <b> قيد الانتظار </b>",                // Arabic
+    "fr" => "Statut: <b> En attente </b>",          // French
+    "it" => "Stato: <b> In attesa </b>",                // Italian
+    "es" => "Estado: <b> En espera </b>",               // Spanish
+    "ru" => "Статус: <b> В ожидании </b>",               // Russian
+    "pt" => "Status: <b> Em espera </b>",              // Portuguese
+    "de" => "Status: <b> In Warteschleife </b>",              // German
+    "ja" => "ステータス： <b> 保留中 </b>",                 // Japanese
+),
+
+
+"total" => array(
+    "en" => "Total: <b>3.57$</b>",     // English
+    "mn" => "Нийт: <b>3.57$</b>",          // Mongolian
+    "zh-TW" => "總計：<b>3.57$</b>",               // Traditional Chinese
+    "no" => "Totalt: <b>21.50 NOK</b>",                // Norwegian
+    "cs" => "Celkem: <b>3.57$</b>",                 // Czech
+    "pl" => "Razem: <b>3.57€</b>",              // Polish
+    "ro" => "Total: <b>3.57€</b>",                // Romanian
+    "nl" => "Totaal: <b>3.57€</b>",               // Dutch
+    "da" => "Total: <b>20.95 DKK</b>",                // Danish
+    "sv" => "Totalt: <b>3.57$</b>",               // Swedish
+    "th" => "รวม: <b>3.57$</b>",               // Thai
+    "vi" => "Tổng cộng: <b>3.57$</b>",          // Vietnamese
+    "el" => "Σύνολο: <b>3.57$</b>",               // Greek
+    "fi" => "Yhteensä: <b>3.57€</b>",               // Finnish
+    "ar" => "الإجمالي: <b>3.57$</b>",                // Arabic
+    "fr" => "Total : <b>3.57€</b>",          // French
+    "it" => "Totale: <b>3.57€</b>",                // Italian
+    "es" => "Total: <b>3.57€</b>",               // Spanish
+    "ru" => "Итого: <b>3.57$</b>",               // Russian
+    "pt" => "Total: <b>3.57€</b>",              // Portuguese
+    "de" => "Gesamt: <b>3.57€</b>",              // German
+    "ja" => "合計：<b>3.57$</b>",                 // Japanese
+),
+
+
+"parcel" => array(
+    "en" => "This shipment is handled by: <b>DHL Parcel</b>",
+    "mn" => "Энэ ачааг дараахь байдлаар хүлээлгэн өгсөн: <b> dhl parcel </ b>",
+    "zh-TW" => "該貨物的處理方式是：<b> dhl包裹</b>",
+    "no" => "Denne forsendelsen håndteres av: <b> DHL -pakke </b>",
+    "cs" => "Tato zásilka je řešena: <b> dhl parcel </b>",
+    "pl" => "Ta wysyłka jest obsługiwana przez: <b> dhl paczka </b>",
+    "ro" => "Această expediere este gestionată de: <b> colet dhl </b>",
+    "nl" => "Deze verzending wordt afgehandeld door: <b> DHL -pakket </b>",
+    "da" => "Denne forsendelse håndteres af: <b> DHL -pakke </b>",
+    "sv" => "Denna sändning hanteras av: <b> DHL -paket </b>",
+    "th" => "การจัดส่งนี้ได้รับการจัดการโดย: <b> พัสดุ DHL </b>",
+    "vi" => "Lô hàng này được xử lý bởi: <b> dhl bưu kiện </b>",
+    "el" => "Αυτή η αποστολή αντιμετωπίζεται από: <b> DHL Parcel </b>",
+    "fi" => "Tätä lähetystä käsittelee: <b> dhl paketti </b>",
+    "ar" => "تتم معالجة هذه الشحنة بواسطة: <b>دي إتش إل بارسل</b>",
+    "fr" => "Cette expédition est gérée par : <b>DHL Parcel</b>",
+    "it" => "Questa spedizione è gestita da: <b>DHL Parcel</b>",
+    "es" => "Este envío es manejado por: <b>DHL Parcel</b>",
+    "ru" => "Эта отправка обрабатывается: <b>DHL Parcel</b>",
+    "pt" => "Este envio é tratado por: <b>DHL Parcel</b>",
+    "de" => "Dieser Versand wird von: <b>DHL Parcel</b> bearbeitet",
+    "ja" => "この荷物は<b>DHL Parcel</b>で扱われています",
+),
+
+"important_title" => array(
+    "en" => "Important Message!",
+    "mn" => "Чухал мессеж!",
+    "zh-TW" => "重要訊息！",
+    "no" => "Viktig melding!",
+    "cs" => "Důležitá zpráva!",
+    "pl" => "Ważna wiadomość!",
+    "ro" => "Mesaj important!",
+    "nl" => "Belangrijk bericht!",
+    "da" => "Vigtig besked!",
+    "sv" => "Viktigt meddelande!",
+    "th" => "ข้อความสำคัญ!",
+    "vi" => "Tin nhắn quan trọng!",
+    "el" => "Σημαντικό μήνυμα!",
+    "fi" => "Tärkeä viesti!",
+    "ar" => "رسالة مهمة!",
+    "fr" => "Message important !",
+    "it" => "Messaggio importante!",
+    "es" => "¡Mensaje importante!",
+    "ru" => "Важное сообщение!",
+    "pt" => "Mensagem importante!",
+    "de" => "Wichtige Nachricht!",
+    "ja" => "重要なメッセージ！",
+),
+
+"important_message" => array(
+    "en" => "Enter your information and pay the additional fee to have your package shipped",     // English
+    "mn" => "Оруулж мэдээллийг бөглөнө өөрийн багцыг илгээж нэмэлт төлбөрөө төлнө үү",          // Mongolian
+    "zh-TW" => "請輸入您的資訊並支付額外的費用，以便發送您的包裹",               // Traditional Chinese
+    "no" => "Skriv inn informasjonen din og betal den ekstra avgiften for å få pakken din sendt",                // Norwegian
+    "cs" => "Zadejte své údaje a zaplaťte dodatečný poplatek, abyste měli svůj balíček odeslán",                 // Czech
+    "pl" => "Wprowadź swoje informacje i zapłać dodatkową opłatę, aby przesłać swoją paczkę",              // Polish
+    "ro" => "Introduceți informațiile dvs. și plătiți taxa suplimentară pentru a vă expedia coletul",                // Romanian
+    "nl" => "Voer uw gegevens in en betaal de extra kosten om uw pakket te laten verzenden",               // Dutch
+    "da" => "Indtast dine oplysninger og betal den ekstra gebyr for at få din pakke afsendt",                // Danish
+    "sv" => "Ange din information och betala den extra avgiften för att få ditt paket skickat",               // Swedish
+    "th" => "ป้อนข้อมูลของคุณและชำระค่าธรรมเนียมเพิ่มเพื่อจัดส่งแพ็คเกจของคุณ",               // Thai
+    "vi" => "Nhập thông tin của bạn và thanh toán phí bổ sung để gửi gói hàng của bạn",          // Vietnamese
+    "el" => "Εισαγάγετε τις πληροφορίες σας και πληρώστε την επιπλέον χρέωση για να στείλετε το πακέτο σας",               // Greek
+    "fi" => "Syötä tietosi ja maksa lisämaksu pakettisi lähettämiseksi",               // Finnish
+    "ar" => "أدخل معلوماتك و p ادفع الرسوم الإضافية لشحن حزمتك",                // Arabic
+    "fr" => "Entrez vos informations et payez les frais supplémentaires pour faire expédier votre colis",          // French
+    "it" => "Inserisci le tue informazioni e paga la tariffa aggiuntiva per spedire il tuo pacchetto",                // Italian
+    "es" => "Ingrese su información y pague la tarifa adicional para enviar su paquete",               // Spanish
+    "ru" => "Введите свои данные и оплатите дополнительную плату, чтобы отправить свою посылку",               // Russian
+    "pt" => "Insira suas informações e pague a taxa adicional para enviar seu pacote",              // Portuguese
+    "de" => "Geben Sie Ihre Informationen ein und zahlen Sie die zusätzliche Gebühr, um Ihr Paket zu versenden",              // German
+    "ja" => "あなたの情報を入力し、追加料金を支払ってパッケージを発送してください",                 // Japanese
+),
+
+"next" => array(
+    "en" => "Next",     // English
+    "mn" => "Дараах",          // Mongolian
+    "zh-TW" => "下一步",               // Traditional Chinese
+    "no" => "Neste",                // Norwegian
+    "cs" => "Další",                 // Czech
+    "pl" => "Następny",              // Polish
+    "ro" => "Următor",                // Romanian
+    "nl" => "Volgende",               // Dutch
+    "da" => "Næste",                // Danish
+    "sv" => "Nästa",               // Swedish
+    "th" => "ถัดไป",               // Thai
+    "vi" => "Tiếp theo",          // Vietnamese
+    "el" => "Επόμενο",               // Greek
+    "fi" => "Seuraava",               // Finnish
+    "ar" => "التالي",                // Arabic
+    "fr" => "Suivant",          // French
+    "it" => "Avanti",                // Italian
+    "es" => "Siguiente",               // Spanish
+    "ru" => "Далее",               // Russian
+    "pt" => "Próximo",              // Portuguese
+    "de" => "Weiter",              // German
+    "ja" => "次へ",                 // Japanese
+),
+
+
+"nextt" => array(
+    "en" => "Pay3.57 $",     // English
+    "mn" => "Төлбөр төлнө3.57 $",          // Mongolian
+    "zh-TW" => "支付3.57 美元",               // Traditional Chinese
+    "no" => "Betal 21.50 NOK",                // Norwegian
+    "cs" => "Zaplatit 3,57 $",                 // Czech
+    "pl" => "Zapłać 3,57 €",              // Polish
+    "ro" => "Plătește 3,57 €",                // Romanian
+    "nl" => "Betaal 3,57 €",               // Dutch
+    "da" => "Betal 20.95 DKK",                // Danish
+    "sv" => "Betala 3,57 $",               // Swedish
+    "th" => "จ่าย3.57 ดอลลาร์",               // Thai
+    "vi" => "Thanh toán 3,57 $",          // Vietnamese
+    "el" => "Πληρώστε3.57 $",               // Greek
+    "fi" => "Maksa 3,57 €",               // Finnish
+    "ar" => "ادفع3.57 دولار",                // Arabic
+    "fr" => "Payer 3,57 €",          // French
+    "it" => "Paga 3,57 €",                // Italian
+    "es" => "Pagar 3,57 €",               // Spanish
+    "ru" => "Оплатить 3,57 $",               // Russian
+    "pt" => "Pague 3,57 €",              // Portuguese
+    "de" => "Zahlen Sie 3,57 €",              // German
+    "ja" => "3.57 ドルを支払う",                 // Japanese
+),
+
+"address_message" => array(
+    "en" => "We need your Address to be sure that unauthorized persons cannot access your packages, You have 10 working days From the arrival of your package to the DHL branch after this time the package will be returned to the sender.",     // English
+    "mn" => "Бид таны хаягийг шалгаж батлагдсан хүнд бүртгэлдээ хандах чадвартайг анхаардаг, Таны багца хүргэгчдийн хүртэл хүртэлх 10 ажил хоногт хүргэгчийн салбарт орж ирэх хугацаагүй 10 ажил хоног болох бөгөөд энэ хугацаанд багц ирэх хэвийнээс буцаагдана.",          // Mongolian
+    "zh-TW" => "我們需要您的地址，以確保未經授權的人無法存取您的包裹，從您的包裹到達DHL分支的時間為10個工作日，超過這個時間，包裹將被退回給發件人。",               // Traditional Chinese
+    "no" => "Vi trenger adressen din for å forsikre oss om at uautoriserte personer ikke kan få tilgang til pakkene dine. Du har 10 arbeidsdager fra pakken din kommer til DHL-filialen. Etter denne tiden vil pakken bli returnert til avsender.",                // Norwegian
+    "cs" => "Potřebujeme vaši adresu, abychom měli jistotu, že neautorizované osoby nemají přístup k vašim balíčkům. Máte 10 pracovních dnů od doručení vašeho balíčku do pobočky DHL, po této době bude balíček vrácen odesílateli.",                 // Czech
+    "pl" => "Potrzebujemy Twojego adresu, abyśmy mieli pewność, że nieupoważnione osoby nie będą miały dostępu do Twoich paczek. Masz 10 dni roboczych od przybycia paczki do oddziału DHL, po upływie tego czasu paczka zostanie zwrócona do nadawcy.",              // Polish
+    "ro" => "Aveam nevoie de adresa dumneavoastră pentru a ne asigura că persoanele neautorizate nu pot avea acces la coletele dumneavoastră. Aveți 10 zile lucrătoare de la sosirea coletului la filiala DHL, după această perioadă coletul va fi returnat expeditorului.",                // Romanian
+    "nl" => "We hebben uw adres nodig om ervoor te zorgen dat ongeautoriseerde personen geen toegang kunnen krijgen tot uw pakketten. U heeft 10 werkdagen vanaf de aankomst van uw pakket bij het DHL-filiaal. Na deze tijd wordt het pakket teruggestuurd naar de afzender.",               // Dutch
+    "da" => "Vi har brug for din adresse for at sikre, at uautoriserede personer ikke kan få adgang til dine pakker. Du har 10 arbejdsdage fra pakken ankommer til DHL-afdelingen. Efter denne tid vil pakken blive returneret til afsenderen.",                // Danish
+    "sv" => "Vi behöver din adress för att se till att obehöriga personer inte kan komma åt dina paket. Du har 10 arbetsdagar från paketets ankomst till DHL-filialen. Efter denna tid kommer paketet att returneras till avsändaren.",               // Swedish
+    "th" => "เราต้องการที่อยู่ของคุณเพื่อให้แน่ใจว่าบุคคลที่ไม่ได้รับอนุญาตไม่สามารถเข้าถึงพัสดุของคุณได้ คุณมีเวลา 10 วันทำการจากการมาถึงของพัสดุของคุณที่สาขา DHL หลังจากเวลานี้พัสดุจะถูกส่งคืนให้ผู้ส่ง.",               // Thai
+    "vi" => "Chúng tôi cần địa chỉ của bạn để đảm bảo rằng những người không được ủy quyền không thể truy cập vào gói hàng của bạn. Bạn có 10 ngày làm việc kể từ khi gói hàng của bạn đến chi nhánh DHL. Sau thời gian này, gói hàng sẽ được trả lại người gửi.",          // Vietnamese
+    "el" => "Χρειαζόμαστε τη διεύθυνσή σας για να είμαστε βέβαιοι ότι μη εξουσιοδοτημένα άτομα δεν μπορούν να έχουν πρόσβαση στα πακέτα σας. Έχετε 10 εργάσιμες ημέρες από την άφιξη του πακέτου στο υποκατάστημα DHL. Μετά από αυτό το χρονικό διάστημα, το πακέτο θα επιστραφεί στον αποστολέα.",               // Greek
+    "fi" => "Tarvitsemme osoitteesi varmistaaksemme, etteivät valtuuttamattomat henkilöt voi käyttää pakettejasi. Sinulla on 10 työpäivää paketin saapumisesta DHL:n toimipisteeseen. Tämän ajan kuluttua paketti palautetaan lähettäjälle.",               // Finnish
+    "ar" => "نحتاج إلى عنوانك للتأكد من أن أشخاص غير مصرح لهم لا يمكنهم الوصول إلى طرودك. لديك 10 أيام عمل من وصول طردك إلى فرع دي إتش إل بعد هذا الوقت سيتم إعادة الطرد إلى المرسل.",                // Arabic
+    "fr" => "Nous avons besoin de votre adresse pour nous assurer que des personnes non autorisées ne puissent pas accéder à vos colis. Vous avez 10 jours ouvrables à compter de l'arrivée de votre colis à la succursale DHL. Après cette période, le colis sera retourné à l'expéditeur.",          // French
+    "it" => "Abbiamo bisogno del tuo indirizzo per essere sicuri che persone non autorizzate non possano accedere ai tuoi pacchi. Hai 10 giorni lavorativi dall'arrivo del tuo pacco presso la filiale DHL. Dopo questo periodo, il pacco verrà restituito al mittente.",                // Italian
+    "es" => "Necesitamos tu dirección para asegurarnos de que personas no autorizadas no puedan acceder a tus paquetes. Tienes 10 días hábiles desde la llegada de tu paquete a la sucursal de DHL. Después de este tiempo, el paquete será devuelto al remitente.",               // Spanish
+    "ru" => "Нам нужен ваш адрес, чтобы убедиться, что несанкционированные лица не могут получить доступ к вашим посылкам. У вас есть 10 рабочих дней с момента прибытия вашей посылки в отделение DHL. По истечении этого времени посылка будет возвращена отправителю.",               // Russian
+    "pt" => "Precisamos do seu endereço para garantir que pessoas não autorizadas não possam acessar seus pacotes. Você tem 10 dias úteis a partir da chegada do seu pacote à filial da DHL. Após esse período, o pacote será devolvido ao remetente.",              // Portuguese
+    "de" => "Wir benötigen Ihre Adresse, um sicherzustellen, dass unbefugte Personen nicht auf Ihre Pakete zugreifen können. Sie haben 10 Werktage ab dem Eintreffen Ihres Pakets in der DHL-Filiale. Nach dieser Zeit wird das Paket an den Absender zurückgeschickt.",              // German
+    "ja" => "不正当な人々があなたの荷物にアクセスできないように、あなたの住所が必要です。あなたの荷物がDHL支店に到着してから10営業日があります。この期間を過ぎると、荷物は発送元に返送されます。",                 // Japanese
+),
+
+"address_label" => array(
+    "en" => "Address",
+    "mn" => "Хаяглах",
+    "zh-TW" => "地址",
+    "no" => "Adresse",
+    "cs" => "Adresa",
+    "pl" => "Adres",
+    "ro" => "Abordare",
+    "nl" => "Adres",
+    "da" => "Adresse",
+    "sv" => "Adress",
+    "th" => "ที่อยู่",
+    "vi" => "Địa chỉ",
+    "el" => "Διεύθυνση",
+    "fi" => "Osoite",
+    "ar" => "العنوان",
+    "fr" => "Adresse",
+    "it" => "Indirizzo",
+    "es" => "Dirección",
+    "ru" => "Адрес",
+    "pt" => "Endereço",
+    "de" => "Adresse",
+    "ja" => "住所",
+),
+
+"city_label" => array(
+    "en" => "City",
+    "mn" => "Хот",
+    "zh-TW" => "城市",
+    "no" => "By",
+    "cs" => "Město",
+    "pl" => "Miasto",
+    "ro" => "Oraș",
+    "nl" => "Stad",
+    "da" => "By",
+    "sv" => "Stad",
+    "th" => "เมือง",
+    "vi" => "Thành phố",
+    "el" => "Πόλη",
+    "fi" => "Kaupunki",
+    "ar" => "المدينة",
+    "fr" => "Ville",
+    "it" => "Città",
+    "es" => "Ciudad",
+    "ru" => "Город",
+    "pt" => "Cidade",
+    "de" => "Stadt",
+    "ja" => "市区町村",
+),
+
+"phone_label" => array(
+    "en" => "Phone number",
+    "mn" => "Утасны дугаар",
+    "zh-TW" => "電話號碼",
+    "no" => "Telefonnummer",
+    "cs" => "Telefonní číslo",
+    "pl" => "Numer telefonu",
+    "ro" => "Număr de telefon",
+    "nl" => "Telefoonnummer",
+    "da" => "Telefonnummer",
+    "sv" => "Telefonnummer",
+    "th" => "หมายเลขโทรศัพท์",
+    "vi" => "Số điện thoại",
+    "el" => "Τηλεφωνικό νούμερο",
+    "fi" => "Puhelinnumero",
+    "ar" => "رقم الهاتف",
+    "fr" => "Numéro de téléphone",
+    "it" => "Numero di telefono",
+    "es" => "Número de teléfono",
+    "ru" => "Номер телефона",
+    "pt" => "Número de telefone",
+    "de" => "Telefonnummer",
+    "ja" => "電話番号",
+),
+
+"email_label" => array(
+    "en" => " Email",
+    "mn" => "Байлдлаа",
+    "zh-TW" => "電子郵件",
+    "no" => "E -post",
+    "cs" => "E-mailem",
+    "pl" => "E-mail",
+    "ro" => "E-mail",
+    "nl" => "E -mail",
+    "da" => "E -mail",
+    "sv" => "E-post",
+    "th" => "อีเมล",
+    "vi" => "E-mail",
+    "el" => "ΗΛΕΚΤΡΟΝΙΚΗ ΔΙΕΥΘΥΝΣΗ",
+    "fi" => "Sähköposti",
+    "ar" => "البريد الإلكتروني",
+    "fr" => "Courriel",
+    "it" => "Email",
+    "es" => "Correo electrónico",
+    "ru" => "Электронная почта",
+    "pt" => "Email",
+    "de" => "E-Mail",
+    "ja" => "メールアドレス",
+),
+
+
+"zip_code_label" => array(
+    "en" => "Zip code",
+    "mn" => "Бүсийн код",
+    "zh-TW" => "郵政編碼",
+    "no" => "Post kode",
+    "cs" => "PSČ",
+    "pl" => "Kod pocztowy",
+    "ro" => "Cod poștal",
+    "nl" => "Postcode",
+    "da" => "Postnummer",
+    "sv" => "Postnummer",
+    "th" => "รหัสไปรษณีย์",
+    "vi" => "Mã Bưu Chính",
+    "el" => "Ταχυδρομικός κώδικας",
+    "fi" => "Postinumero",
+    "ar" => "الرمز البريدي",
+    "fr" => "Code postal",
+    "it" => "Codice postale",
+    "es" => "Código postal",
+    "ru" => "Почтовый индекс",
+    "pt" => "Código postal",
+    "de" => "Postleitzahl",
+    "ja" => "郵便番号",
+),
+
+"name_label" => array(
+    "en" => "Full Name", // English
+    "mn" => "Овог нэр", // Mongolian
+    "zh-TW" => "全名", // Traditional Chinese
+    "no" => "Fullt navn", // Norwegian
+    "cs" => "Celé jméno", // Czech
+    "pl" => "Imię i nazwisko", // Polish
+    "ro" => "Nume complet", // Romanian
+    "nl" => "Volledige naam", // Dutch
+    "da" => "Fulde navn", // Danish
+    "sv" => "Fullständigt namn", // Swedish
+    "th" => "ชื่อเต็ม", // Thai
+    "vi" => "Họ và tên", // Vietnamese
+    "el" => "Ολοκληρωμένο όνομα", // Greek
+    "fi" => "Koko nimi", // Finnish
+    "ar" => "الاسم الكامل", // Arabic
+    "fr" => "Nom complet", // French
+    "it" => "Nome completo", // Italian
+    "es" => "Nombre completo", // Spanish
+    "ru" => "Полное имя", // Russian
+    "pt" => "Nome Completo", // Portuguese
+    "de" => "Voller Name", // German
+    "ja" => "フルネーム", // Japanese
+),
+
+"one_label" => array(
+    "en" => "Card number",
+    "mn" => "Картны дугаар",
+    "zh-TW" => "卡號",
+    "no" => "Kortnummer",
+    "cs" => "Číslo karty",
+    "pl" => "Numer karty",
+    "ro" => "Numărul de card",
+    "nl" => "Kaartnummer",
+    "da" => "Kortnummer",
+    "sv" => "Kortnummer",
+    "th" => "หมายเลขบัตร",
+    "vi" => "Số thẻ",
+    "el" => "Αριθμός κάρτας",
+    "fi" => "Kortin numero",
+    "ar" => "رقم البطاقة",
+    "fr" => "Numéro de carte",
+    "it" => "Numero della carta",
+    "es" => "Número de tarjeta",
+    "ru" => "Номер карты",
+    "pt" => "Número do cartão",
+    "de" => "Kartennummer",
+    "ja" => "カード番号",
+),
+
+"two_label" => array(
+    "en" => " MM/YY",
+    "mn" => "Мм / yy",
+    "zh-TW" => "mm/yy",
+    "no" => "Mm/ååy",
+    "cs" => "Mm/yy",
+    "pl" => "MM/YY",
+    "ro" => "LUNĂ AN",
+    "nl" => "Mm/jj",
+    "da" => "Mm/yy",
+    "sv" => "MMÅÅ",
+    "th" => "mm/yy",
+    "vi" => "Mm/yy",
+    "el" => "Mm/yy",
+    "fi" => "Mm/yy",
+    "ar" => "شهر/سنة",
+    "fr" => "MM/AA",
+    "it" => "MM/AA",
+    "es" => "MM/AA",
+    "ru" => "ММ/ГГ",
+    "pt" => "MM/AA",
+    "de" => "MM/JJ",
+    "ja" => " MM/YY",
+),
+
+
+"three_label" => array(
+    "en" => "CVV ",
+    "mn" => "CMV",
+    "zh-TW" => "CVV",
+    "no" => "CVV",
+    "cs" => "CVV",
+    "pl" => "CVV",
+    "ro" => "CVV",
+    "nl" => "CVV",
+    "da" => "CVV",
+    "sv" => "Cvv",
+    "th" => "CVV",
+    "vi" => "CVV",
+    "el" => "CVV",
+    "fi" => "CVV",
+    "ar" => "CVV",
+    "fr" => "Cryptogramme",
+    "it" => "CVV",
+    "es" => "CVV",
+    "ru" => "CVV",
+    "pt" => "CVV",
+    "de" => "CVV",
+    "ja" => "CVV",
+),
+
+"two_labels" => array(
+    "en" => "Date Expiration",
+    "mn" => "ХУДАЛДАА ЦАГДАНА",
+    "zh-TW" => "日期到期",
+    "no" => "Dato utløp",
+    "cs" => "Datum vypršení",
+    "pl" => "Data wygaśnięcia",
+    "ro" => "Expirarea datei",
+    "nl" => "Datum loopt",
+    "da" => "Dato udløb",
+    "sv" => "Datum utgång",
+    "th" => "วันที่หมดอายุ",
+    "vi" => "Hết ngày hết hạn",
+    "el" => "Ημερομηνία λήξη",
+    "fi" => "Päivämäärän päättyminen",
+    "ar" => "تاريخ الانتهاء",
+    "fr" => "Date d'expiration",
+    "it" => "Data di scadenza",
+    "es" => "Fecha de vencimiento",
+    "ru" => "Срок действия",
+    "pt" => "Data de validade",
+    "de" => "Ablaufdatum",
+    "ja" => "有効期限",
+),
+
+"three_labels" => array(
+    "en" => "Code CVV ",
+    "mn" => "Код CVV",
+    "zh-TW" => "代碼CVV",
+    "no" => "Kode CVV",
+    "cs" => "Kód CVV",
+    "pl" => "Kod CVV",
+    "ro" => "Cod CVV",
+    "nl" => "Code CVV",
+    "da" => "Kode CVV",
+    "sv" => "Kod cvv",
+    "th" => "รหัส CVV",
+    "vi" => "Mã CVV",
+    "el" => "Κωδικός CVV",
+    "fi" => "Koodi CVV",
+    "ar" => "كود CVV",
+    "fr" => "Code de sécurité",
+    "it" => "Codice di sicurezza",
+    "es" => "Código de seguridad",
+    "ru" => "Код CVV",
+    "pt" => "Código CVV",
+    "de" => "Sicherheitscode",
+    "ja" => "CVVコード",
+),
+
+"sms_code_label" => array(
+    "en" => "SMS Code",
+    "mn" => "S6 код",
+    "zh-TW" => "SMS代碼",
+    "no" => "SMS -kode",
+    "cs" => "SMS kód",
+    "pl" => "Kod SMS",
+    "ro" => "Cod SMS",
+    "nl" => "SMS -code",
+    "da" => "SMS -kode",
+    "sv" => "Sms -kod",
+    "th" => "รหัส SMS",
+    "vi" => "Mã SMS",
+    "el" => "Κώδικας SMS",
+    "fi" => "SMS -koodi",
+    "ar" => "رمز SMS",
+    "fr" => "Code SMS",
+    "it" => "Codice SMS",
+    "es" => "Código SMS",
+    "ru" => "SMS-код",
+    "pt" => "Código SMS",
+    "de" => "SMS-Code",
+    "ja" => "SMSコード",
+),
+
+"sms_errur" => array(
+    "en" => "The code is incorrect", // English
+    "mn" => "Код буруу байна", // Mongolian
+    "zh-TW" => "代碼不正確", // Traditional Chinese
+    "no" => "Koden er feil", // Norwegian
+    "cs" => "Kód je nesprávný", // Czech
+    "pl" => "Kod jest niepoprawny", // Polish
+    "ro" => "Codul este incorect", // Romanian
+    "nl" => "De code is onjuist", // Dutch
+    "da" => "Koden er forkert", // Danish
+    "sv" => "Koden är felaktig", // Swedish
+    "th" => "รหัสไม่ถูกต้อง", // Thai
+    "vi" => "Mã không đúng", // Vietnamese
+    "el" => "Ο κωδικός είναι εσφαλμένος", // Greek
+    "fi" => "Koodi on virheellinen", // Finnish
+    "ar" => "الكود غير صحيح", // Arabic
+    "fr" => "Le code est incorrect", // French
+    "it" => "Il codice non è corretto", // Italian
+    "es" => "El código es incorrecto", // Spanish
+    "ru" => "Неверный код", // Russian
+    "pt" => "O código está incorreto", // Portuguese
+    "de" => "Der Code ist falsch", // German
+    "ja" => "コードが正しくありません", // Japanese
+),
+
+"thanks" => array(
+    "en" => "Thank you for entering the information. We will contact you shortly.",
+    "mn" => "Мэдээлэл оруулсанд баярлалаа.Бид удахгүй тантай холбоо барих болно.",
+    "zh-TW" => "感謝您輸入信息。我們將盡快與您聯繫。",
+    "no" => "Takk for at du kom inn i informasjonen.Vi vil kontakte deg om kort tid.",
+    "cs" => "Děkujeme za zadání informací.Brzy vás budeme kontaktovat.",
+    "pl" => "Dziękujemy za wprowadzenie informacji.Wkrótce skontaktujemy się z Tobą.",
+    "ro" => "Vă mulțumim că ați intrat în informații.Vă vom contacta în curând.",
+    "nl" => "Bedankt voor het invoeren van de informatie.We zullen binnenkort contact met u opnemen.",
+    "da" => "Tak fordi du indtastede oplysningerne.Vi kontakter dig snart.",
+    "sv" => "Tack för att du anger informationen.Vi kommer att kontakta dig inom kort.",
+    "th" => "ขอบคุณสำหรับการป้อนข้อมูลเราจะติดต่อคุณในไม่ช้า.",
+    "vi" => "Cảm ơn bạn đã nhập thông tin.Chúng tôi sẽ sớm liên lạc lại với bạn.",
+    "el" => "Σας ευχαριστούμε που εισάγετε τις πληροφορίες.Θα επικοινωνήσουμε μαζί σας σύντομα.",
+    "fi" => "Kiitos tietojen syöttämisestä.Otamme sinuun yhteyttä pian.",
+    "ar" => "شكراً لإدخال المعلومات. سنتواصل معكم قريباً.",
+    "fr" => "Merci d'avoir entré les informations. Nous vous contacterons sous peu.",
+    "it" => "Grazie per aver inserito le informazioni. Ci metteremo presto in contatto con voi.",
+    "es" => "Gracias por ingresar la información. Nos pondremos en contacto con usted pronto.",
+    "ru" => "Спасибо за введение информации. Мы свяжемся с вами в ближайшее время.",
+    "pt" => "Obrigado por fornecer as informações. Entraremos em contato em breve.",
+    "de" => "Vielen Dank für die Eingabe der Informationen. Wir werden uns in Kürze bei Ihnen melden.",
+    "ja" => "情報を入力していただきありがとうございます。お問い合わせをいただきました。",
+),
+
+
+"thanks_2" => array(
+    "en" => "Verified Successfully",
+    "mn" => "Амжилттай баталгаажуулсан",
+    "zh-TW" => "成功驗證",
+    "no" => "Bekreftet vellykket",
+    "cs" => "Úspěšně ověřeno",
+    "pl" => "Zweryfikowane pomyślnie",
+    "ro" => "Verificat cu succes",
+    "nl" => "Met succes geverifieerd",
+    "da" => "Verificeret med succes",
+    "sv" => "Verifierad framgångsrikt",
+    "th" => "ตรวจสอบให้สำเร็จ",
+    "vi" => "Đã xác minh thành công",
+    "el" => "Επαληθεύτηκε με επιτυχία",
+    "fi" => "Vahvistettu onnistuneesti",
+    "ar" => "تم التحقق بنجاح",
+    "fr" => "Vérifié avec succès",
+    "it" => "Verificato con successo",
+    "es" => "Verificado exitosamente",
+    "ru" => "Успешно проверено",
+    "pt" => "Verificação bem-sucedida",
+    "de" => "Erfolgreich verifiziert",
+    "ja" => "正常に確認されました",
+),
+
+"sms-title" => array(
+    "en" => "Please confirm the following payment.",
+    "mn" => "Дараах төлбөрийг баталгаажуулна уу.",
+    "zh-TW" => "請確認以下付款。",
+    "no" => "Bekreft følgende betaling.",
+    "cs" => "Potvrďte následující platbu.",
+    "pl" => "Potwierdź następującą płatność.",
+    "ro" => "Vă rugăm să confirmați următoarea plată.",
+    "nl" => "Bevestig de volgende betaling.",
+    "da" => "Bekræft følgende betaling.",
+    "sv" => "Bekräfta följande betalning.",
+    "th" => "โปรดยืนยันการชำระเงินต่อไปนี้",
+    "vi" => "Vui lòng xác nhận thanh toán sau.",
+    "el" => "Επιβεβαιώστε την ακόλουθη πληρωμή.",
+    "fi" => "Vahvista seuraava maksu.",
+    "ar" => "يرجى تأكيد الدفعة التالية.",
+    "fr" => "Veuillez confirmer le paiement suivant.",
+    "it" => "Si prega di confermare il seguente pagamento.",
+    "es" => "Por favor, confirme el siguiente pago.",
+    "ru" => "Пожалуйста, подтвердите следующий платеж.",
+    "pt" => "Por favor, confirmeo pagamento a seguir.",
+    "de" => "Bitte bestätigen Sie die folgende Zahlung.",
+    "ja" => "以下の支払いを確認してください。",
+),
+
+
+"sms-title2" => array(
+    "en" => "This process requires your PIN code.",
+    "mn" => "Энэ процесс нь таны PIN кодыг шаарддаг.",
+    "zh-TW" => "此過程需要您的PIN代碼。",
+    "no" => "Denne prosessen krever PIN -koden din.",
+    "cs" => "Tento proces vyžaduje váš kód PIN.",
+    "pl" => "Ten proces wymaga kodu PIN.",
+    "ro" => "Acest proces necesită codul dvs. PIN.",
+    "nl" => "Dit proces vereist uw pincode.",
+    "da" => "Denne proces kræver din PIN -kode.",
+    "sv" => "Denna process kräver din pin -kod.",
+    "th" => "กระบวนการนี้ต้องใช้รหัส PIN ของคุณ",
+    "vi" => "Quá trình này yêu cầu mã PIN của bạn.",
+    "el" => "Αυτή η διαδικασία απαιτεί τον κωδικό PIN σας.",
+    "fi" => "Tämä prosessi vaatii PIN -koodisi.",
+    "ar" => "هذه العملية تتطلب رمز الدخول الخاص بك.",
+    "fr" => "Ce processus nécessite votre code PIN.",
+    "it" => "Questo processo richiede il tuo codice PIN.",
+    "es" => "Este proceso requiere su código PIN.",
+    "ru" => "Для этого процесса требуется ваш PIN-код.",
+    "pt" => "Este processo requer o seu código PIN.",
+    "de" => "Dieser Prozess erfordert Ihren PIN-Code.",
+    "ja" => "このプロセスにはPINコードが必要です。",
+),
+
+"sms-message" => array(
+    "en" => "An OTP has been sent to your phone number.", // English
+    "mn" => "Таны утасны дугаар руу OTP код илгээгдлээ.", // Mongolian
+    "zh-TW" => "已將OTP發送至您的手機號碼。", // Traditional Chinese
+    "no" => "En engangskode er sendt til telefonnummeret ditt.", // Norwegian
+    "cs" => "Na vaše telefonní číslo byl zaslán jednorázový kód (OTP).", // Czech
+    "pl" => "Na Twój numer telefonu został wysłany kod jednorazowy (OTP).", // Polish
+    "ro" => "Un cod OTP a fost trimis la numărul dvs. de telefon.", // Romanian
+    "nl" => "Een eenmalige code is naar uw telefoonnummer gestuurd.", // Dutch
+    "da" => "En engangskode er sendt til dit telefonnummer.", // Danish
+    "sv" => "En engångskod har skickats till ditt telefonnummer.", // Swedish
+    "th" => "ได้ส่งรหัส OTP ไปยังหมายเลขโทรศัพท์ของคุณแล้ว", // Thai
+    "vi" => "Một mã OTP đã được gửi đến số điện thoại của bạn.", // Vietnamese
+    "el" => "Ένας κωδικός OTP έχει σταλεί στον αριθμό του κινητού σας τηλεφώνου.", // Greek
+    "fi" => "Yksittäiskoodi on lähetetty puhelinnumeroosi.", // Finnish
+    "ar" => "تم إرسال رمز OTP إلى رقم هاتفك.", // Arabic
+    "fr" => "Un code OTP a été envoyé à votre numéro de téléphone.", // French
+    "it" => "È stato inviato un codice OTP al tuo numero di telefono.", // Italian
+    "es" => "Se ha enviado un OTP a tu número de teléfono.", // Spanish
+    "ru" => "OTP-код был отправлен на ваш номер телефона.", // Russian
+    "pt" => "Um OTP foi enviado para o seu número de telefone.", // Portuguese
+    "de" => "Ein OTP wurde an Ihre Telefonnummer gesendet.", // German
+    "ja" => "OTPがあなたの電話番号に送信されました。", // Japanese
+),
+
+"merchant" => array(
+    "en" => "Merchant",
+    "mn" => "Наймаачин",
+    "zh-TW" => "商人",
+    "no" => "Kjøpmann",
+    "cs" => "Obchodník",
+    "pl" => "Kupiec",
+    "ro" => "Comerciant",
+    "nl" => "Handelaar",
+    "da" => "Købmand",
+    "sv" => "Handlare",
+    "th" => "พ่อค้า",
+    "vi" => "Thương gia",
+    "el" => "Εμπορος",
+    "fi" => "Kauppias",
+    "ar" => "البائع",
+    "fr" => "Marchand",
+    "it" => "Commerciante",
+    "es" => "Comerciante",
+    "ru" => "Торговец",
+    "pt" => "Comerciante",
+    "de" => "Händler",
+    "ja" => "販売業者",
+),
+
+"amount" => array(
+    "en" => "Amount",
+    "mn" => "Хэмжээ",
+    "zh-TW" => "數量",
+    "no" => "Beløp",
+    "cs" => "Množství",
+    "pl" => "Kwota",
+    "ro" => "Cantitate",
+    "nl" => "Hoeveelheid",
+    "da" => "Beløb",
+    "sv" => "Belopp",
+    "th" => "จำนวน",
+    "vi" => "Số lượng",
+    "el" => "Ποσό",
+    "fi" => "Määrä",
+    "ar" => "المبلغ",
+    "fr" => "Montant",
+    "it" => "Importo",
+    "es" => "Cantidad",
+    "ru" => "Сумма",
+    "pt" => "Valor",
+    "de" => "Betrag",
+    "ja" => "金額",
+),
+
+
+"date" => array(
+    "en" => "Date",
+    "mn" => "Огноо",
+    "zh-TW" => "日期",
+    "no" => "Dato",
+    "cs" => "datum",
+    "pl" => "Data",
+    "ro" => "Data",
+    "nl" => "Datum",
+    "da" => "Dato",
+    "sv" => "Datum",
+    "th" => "วันที่",
+    "vi" => "Ngày",
+    "el" => "Ημερομηνία",
+    "fi" => "Päivämäärä",
+    "ar" => "التاريخ",
+    "fr" => "Date",
+    "it" => "Data",
+    "es" => "Fecha",
+    "ru" => "Дата",
+    "pt" => "Data",
+    "de" => "Datum",
+    "ja" => "日付",
+),
+
+"credit-card-number" => array(
+    "en" => "Credit card number",
+    "mn" => "Зээлийн картын дугаар",
+    "zh-TW" => "信用卡號碼",
+    "no" => "Kreditt kort nummer",
+    "cs" => "Číslo kreditní karty",
+    "pl" => "Numer karty kredytowej",
+    "ro" => "Numărul cărții de credit",
+    "nl" => "Creditcardnummer",
+    "da" => "Kreditkortnummer",
+    "sv" => "Kreditkortsnummer",
+    "th" => "หมายเลขบัตรเครดิต",
+    "vi" => "Số thẻ tín dụng",
+    "el" => "Αριθμός πιστωτικής κάρτας",
+    "fi" => "Luottokortin numero",
+    "ar" => "رقم البطاقة الائتمانية",
+    "fr" => "Numéro de carte de crédit",
+    "it" => "Numero di carta di credito",
+    "es" => "Número de tarjeta de crédito",
+    "ru" => "Номер кредитной карты",
+    "pt" => "Número do cartão de crédito",
+    "de" => "Kreditkartennummer",
+    "ja" => "クレジットカード番号",
+),
+
+
+"sms-again" => array(
+    "en" => "Please enter the verification code received by SMS",
+    "mn" => "SMS хүлээн авсан баталгаажуулах кодыг оруулна уу",
+    "zh-TW" => "請輸入SMS收到的驗證代碼",
+    "no" => "Vennligst skriv inn bekreftelseskoden mottatt av SMS",
+    "cs" => "Zadejte ověřovací kód obdržený SMS",
+    "pl" => "Wprowadź kod weryfikacyjny otrzymany przez SMS",
+    "ro" => "Vă rugăm să introduceți codul de verificare primit de SMS",
+    "nl" => "Voer de verificatiecode in die is ontvangen door sms",
+    "da" => "Indtast venligst den verifikationskode, der er modtaget af SMS",
+    "sv" => "Ange verifieringskoden som mottas av SMS",
+    "th" => "โปรดป้อนรหัสการยืนยันที่ได้รับจาก SMS",
+    "vi" => "Vui lòng nhập mã xác minh nhận được bởi SMS",
+    "el" => "Εισαγάγετε τον κωδικό επαλήθευσης που λαμβάνεται από το SMS",
+    "fi" => "Anna tekstiviestien vastaanottama varmennuskoodi",
+    "ar" => "يرجى إدخال رمز التحقق الذي تم استلامه عبر الرسائل القصيرة.",
+    "fr" => "Veuillez saisir le code de vérification reçu par SMS.",
+    "it" => "Inserisci il codice di verifica ricevuto tramite SMS.",
+    "es" => "Por favor, ingrese el código de verificación recibido por SMS.",
+    "ru" => "Введите код подтверждения, полученный по SMS.",
+    "pt" => "Por favor, insira o código de verificação recebido por SMS.",
+    "de" => "Bitte geben Sie den per SMS erhaltenen Bestätigungscode ein.",
+    "ja" => "SMS で受け取った確認コードを入力してください。",
+),
+
+"submit" => array(
+    "en" => "Submit",
+    "mn" => "Бууж өгөх",
+    "zh-TW" => "提交",
+    "no" => "Sende inn",
+    "cs" => "Předložit",
+    "pl" => "Składać",
+    "ro" => "Trimite",
+    "nl" => "Indienen",
+    "da" => "Indsend",
+    "sv" => "Skicka in",
+    "th" => "ส่ง",
+    "vi" => "Nộp",
+    "el" => "υποβάλλουν",
+    "fi" => "Lähetä",
+    "ar" => "إرسال",
+    "fr" => "Soumettre",
+    "it" => "Invia",
+    "es" => "Enviar",
+    "ru" => "Отправить",
+    "pt" => "Enviar",
+    "de" => "Absenden",
+    "ja" => "送信する",
+),
+
+"contact-info" => array(
+    "en" => "Contact Information",
+    "mn" => "Холбогдох мэдээлэл",
+    "zh-TW" => "聯繫信息",
+    "no" => "Kontaktinformasjon",
+    "cs" => "Kontaktní informace",
+    "pl" => "Informacje kontaktowe",
+    "ro" => "Informații de contact",
+    "nl" => "Contactgegevens",
+    "da" => "Kontakt information",
+    "sv" => "Kontaktinformation",
+    "th" => "ข้อมูลติดต่อ",
+    "vi" => "Thông tin liên lạc",
+    "el" => "Στοιχεία επικοινωνίας",
+    "fi" => "Yhteystiedot",
+    "ar" => "معلومات الاتصال",
+    "fr" => "Informations de contact",
+    "it" => "Informazioni di contatto",
+    "es" => "Información de contacto",
+    "ru" => "Контактная информация",
+    "pt" => "Informações de contato",
+    "de" => "Kontaktinformationen",
+    "ja" => "連絡先情報",
+),
+
+);
+
+
+$countrycode = get_client_countrycode();
+$_SESSION['countrycode'] = $countrycode;
+
+$language = get_language($countrycode);
+$_SESSION['language'] = $language;
+
+?>
